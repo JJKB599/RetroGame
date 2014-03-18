@@ -13,24 +13,27 @@
 #include <list> 
 #include <sstream> // For int <-> string conversion 
 #include <vector> 
-  
+
+#include "Animation.h" 
+#include "Environment.h"
+
 class Enemy
 { 
     Animation& animation; 
-    int posX, posY; 
+    int posX, posY;
+    int direction;
   
     public: 
         Enemy(Animation& animation);
   
-        int x() const; 
-        int y() const; 
+        int x() const;
+        int y() const;
   
-        void warp(int x, int y); 
-        void moveUp(); 
-        void moveDown(); 
-        void moveLeft(); 
-        void moveRight(); 
+        void warp(int x, int y);
   
+        void move(Environment env);
+        void moveDirection(int dir);
+          
         void draw() const; 
 }; 
   

@@ -14,7 +14,10 @@
 #include <vector> 
   
 #include "Animation.h" 
+#include "Environment.h"
+#include "Direction.h"
 #include "GameConstants.h" 
+#include "Utilities.h"
 #include "ZOrder.h" 
   
 #include "Enemy.h"
@@ -24,40 +27,60 @@ Enemy::Enemy(Animation& animation)
 :   animation(animation) 
 { 
     posX = posY = 0;
+    direction = LEFT;
 }
-  
+
+
 int Enemy::x() const { return posX; }
 int Enemy::y() const { return posY; }
-  
+
+
 void Enemy::warp(int x, int y)
 { 
     posX = x; 
     posY = y; 
 } 
-  
-void Enemy::moveUp()
-{ 
-    posY -= 1; 
-} 
-  
-void Enemy::moveDown()
-{ 
-    posY += 1; 
-} 
-  
-void Enemy::moveLeft()
-{ 
-    posX -= 1; 
-} 
-  
-void Enemy::moveRight()
-{ 
-    posX += 1; 
-} 
-  
+
+
+void Enemy::move(Environment env)
+{
+  // If we can continue moving in the direction, don't change directions
+  if (canMoveDirection(x(), y(), env, direction) == false) {
+    
+    // Otherwise, we need to select a new direction
+    do {
+      direction = (direction + 1) % 4;
+    }
+    while (canMoveDirection(x(), y(), env, direction) == false);
+  }
+
+  // Then move in that direction
+  moveDirection(direction);
+}
+
+
+void Enemy::moveDirection(int dir)
+{
+  switch (direction) {
+    case LEFT:
+      posX -= 1;
+      break;
+    case RIGHT:
+      posX += 1;
+      break;
+    case UP:
+      posY -= 1;
+      break;
+    case DOWN:
+      posY += 1;
+      break;
+  }
+}
+
+
 void Enemy::draw() const
 { 
     Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % animation.size()); 
   
-    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zEnemy, 1, 1); 
-}
+    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1); 
+} 
