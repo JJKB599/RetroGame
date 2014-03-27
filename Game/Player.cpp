@@ -16,6 +16,7 @@
 #include "Animation.h"
 #include "Direction.h"
 #include "Enemy.h"
+#include "Utilities.h"
 #include "ZOrder.h"
 
 #include "Player.h"
@@ -36,7 +37,9 @@ Player::Player(Animation& animation)
 
 int Player::x() const { return posX; }
 int Player::y() const { return posY; }
+
 bool Player::isDying() const { return dying; }
+bool Player::isStandingStill() const { return standingStill; }
 
 
 int Player::shotDirection() const
@@ -60,17 +63,41 @@ int Player::shotDirection() const
 }
 
 
+int Player::getCurrentWalkCycleDirection() const
+{
+	return currentWalkCycleDirection;
+}
+
+
 void Player::warp(int x, int y)
 {
 	posX = x;
 	posY = y;
 }
 
+void Player::move()
+{
+	if (!standingStill && !dying)
+	{
+		if (currentDirection == LEFT)
+			posX -= 1;
+		else if (currentDirection == RIGHT)
+			posX += 1;
+		else if (currentDirection == UP)
+			posY -= 1;
+		else // if (currentDirection == DOWN)
+			posY += 1;
+
+		if (isInCentreOfCell(posX - 15, posY - 15))
+			standingStill = true;
+	}
+}
+
 void Player::moveLeft()
 {
-	if (!dying)
+	if (!dying && standingStill)
 	{
-		posX -= 1;
+		//posX -= 1;
 		currentDirection = LEFT;
 		currentWalkCycleDirection = LEFT;
 		standingStill = false;
@@ -80,9 +107,9 @@ void Player::moveLeft()
 
 void Player::moveRight()
 {
-	if (!dying)
+	if (!dying && standingStill)
 	{
-		posX += 1;
+		//posX += 1;
 		currentDirection = RIGHT;
 		currentWalkCycleDirection = RIGHT;
 		standingStill = false;
@@ -91,9 +118,9 @@ void Player::moveRight()
 }
 void Player::moveUp()
 {
-	if (!dying)
+	if (!dying && standingStill)
 	{
-		posY -= 1;
+		//posY -= 1;
 		currentDirection = UP;
 		standingStill = false;
 		changeWalkCycle();
@@ -102,11 +129,31 @@ void Player::moveUp()
 
 void Player::moveDown()
 {
-	if (!dying)
+	if (!dying && standingStill)
 	{
-		posY += 1;
+		//posY += 1;
 		currentDirection = DOWN;
 		standingStill = false;
+		changeWalkCycle();
+	}
+}
+
+void Player::turnLeft()
+{
+	if (!dying && standingStill)
+	{
+		currentDirection = LEFT;
+		currentWalkCycleDirection = LEFT;
+		changeWalkCycle();
+	}
+}
+
+void Player::turnRight()
+{
+	if (!dying && standingStill)
+	{
+		currentDirection = RIGHT;
+		currentWalkCycleDirection = RIGHT;
 		changeWalkCycle();
 	}
 }
@@ -158,20 +205,20 @@ void Player::draw()
 	if (dying)
 	{
 		Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % 2 /* number of frames in dying animation cycle */ + DYING_CYCLE * NUMBER_OF_FRAMES);
-		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
 	}
 	else if (standingStill)
 	{
 		Gosu::Image& image = *animation.at(currentWalkCycle * NUMBER_OF_FRAMES);
-		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
 	}
 	else
 	{
 		Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % NUMBER_OF_FRAMES + currentWalkCycle * NUMBER_OF_FRAMES);
-		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
 	}
 
-	standingStill = true;
+	//standingStill = true;
 }
 
 

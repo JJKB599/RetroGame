@@ -23,24 +23,26 @@ class Shot
 
 	static const int NUMBER_OF_FRAMES = 4;	// number of frames per cycle
 
-	static const int LEFT_SHOT_CYCLE = LEFT;	// starting position of left shot cycle = LEFT * NUMBER_OF_FRAMES
-	static const int RIGHT_SHOT_CYCLE = RIGHT;	// starting position of right shot cycle = RIGHT * NUMBER_OF_FRAMES
-	static const int UP_SHOT_CYCLE = UP;		// starting position of up shot cycle = UP * NUMBER_OF_FRAMES
-	static const int DOWN_SHOT_CYCLE = DOWN;	// starting position of down shot cycle = DOWN * NUMBER_OF_FRAMES
+	static const int RIGHT_SHOT_CYCLE = 0;		// starting position of right shot cycle = 0 * NUMBER_OF_FRAMES
+	static const int RIGHT_UP_SHOT_CYCLE = 1;	// starting position of right-up shot cycle = 1 * NUMBER_OF_FRAMES
+	static const int RIGHT_DOWN_SHOT_CYCLE = 2;	// starting position of right-down shot cycle = 2 * NUMBER_OF_FRAMES
+	static const int LEFT_SHOT_CYCLE = 3;		// starting position of left shot cycle = 3 * NUMBER_OF_FRAMES
+	static const int LEFT_UP_SHOT_CYCLE = 4;	// starting position of left-up shot cycle = 4 * NUMBER_OF_FRAMES
+	static const int LEFT_DOWN_SHOT_CYCLE = 5;	// starting position of left-down shot cycle = 5 * NUMBER_OF_FRAMES
 	
 	
 	Animation& animation;
 	int posX, posY;
 	bool isActive;
 	unsigned long startTime;
-	int shotDirection;
+	int shotCycle;
 
 	public:
 		Shot(Animation& animation);
 		int x() const;
 		int y() const;
 		bool active() const;
-		void activate(int x, int y, int direction, std::list<Enemy>& enemies);
+		void activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies);
 		void draw();
 };
 

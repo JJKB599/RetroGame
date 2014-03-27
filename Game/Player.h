@@ -23,12 +23,12 @@ class Player
 
 	static const int NUMBER_OF_FRAMES = 3;			// number of frames per walk cycle
 
-	static const int LEFT_GUN_DOWN_CYCLE = 0;		// starting position of left gun down walk cycle = 0 * NUMBER_OF_FRAMES
-	static const int RIGHT_GUN_DOWN_CYCLE = 1;		// starting position of right gun down walk cycle = 1 * NUMBER_OF_FRAMES
-	static const int LEFT_GUN_FORWARD_CYCLE = 2;	// starting position of left gun forward walk cycle = 2 * NUMBER_OF_FRAMES
-	static const int RIGHT_GUN_FORWARD_CYCLE = 3;	// starting position of right gun forward walk cycle = 3 * NUMBER_OF_FRAMES
+	static const int LEFT_GUN_DOWN_CYCLE = 5;		// starting position of left gun down walk cycle = 5 * NUMBER_OF_FRAMES
+	static const int RIGHT_GUN_DOWN_CYCLE = 2;		// starting position of right gun down walk cycle = 2 * NUMBER_OF_FRAMES
+	static const int LEFT_GUN_FORWARD_CYCLE = 3;	// starting position of left gun forward walk cycle = 3 * NUMBER_OF_FRAMES
+	static const int RIGHT_GUN_FORWARD_CYCLE = 0;	// starting position of right gun forward walk cycle = 0 * NUMBER_OF_FRAMES
 	static const int LEFT_GUN_UP_CYCLE = 4;			// starting position of left gun up walk cycle = 4 * NUMBER_OF_FRAMES
-	static const int RIGHT_GUN_UP_CYCLE = 5;		// starting position of right gun up walk cycle = 5 * NUMBER_OF_FRAMES
+	static const int RIGHT_GUN_UP_CYCLE = 1;		// starting position of right gun up walk cycle = 1 * NUMBER_OF_FRAMES
 	static const int DYING_CYCLE = 6;				// starting position of dying cycle = 6 * NUMBER_OF_FRAMES
 
 	static const int GUN_DOWN = 0;
@@ -52,15 +52,22 @@ class Player
 
 		int x() const;
 		int y() const;
+
 		bool isDying() const;
+		bool isStandingStill() const;
 
 		int shotDirection() const;
 
+		int getCurrentWalkCycleDirection() const;
+
         void warp(int x, int y);
+		void move();
         void moveLeft();
         void moveRight();
 		void moveUp();
         void moveDown();
+		void turnLeft();
+		void turnRight();
 
 		void moveGunUp();
 		void moveGunDown();
