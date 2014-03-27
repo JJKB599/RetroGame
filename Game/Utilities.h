@@ -1,5 +1,5 @@
-#ifndef Utilities_h
-#define Utilities_h
+#ifndef UTILITIES_H
+#define UTILITIES_H
 
 #include "Direction.h"
 #include "Enemy.h"
@@ -11,5 +11,12 @@ bool collisionDidOccur(Player player, Enemy enemy);
 
 // Check whether a player or enemy can move in a given direction
 bool canMoveDirection(int x, int y, Environment environment, int direction);
+
+int screenXToMapX(int screenX);
+int screenYToMapY(int screenY);
+int mapXToScreenX(int mapX);
+int mapYToScreenY(int mapY);
+
+bool isInCentreOfCell(int x, int y);
 
 #endif

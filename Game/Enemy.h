@@ -18,8 +18,8 @@
 #include "Environment.h"
 
 class Enemy
-{ 
-    Animation& animation; 
+{
+	Animation& animation; 
     int posX, posY;
     int direction;
   

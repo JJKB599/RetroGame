@@ -8,7 +8,8 @@
 #include <Gosu/Color.hpp> 
   
 #include <cmath> 
-#include <cstdlib> 
+#include <cstdlib>
+#include <ctime>
 #include <list> 
 #include <sstream> // For int <-> string conversion 
 #include <vector> 
@@ -26,7 +27,9 @@
 Enemy::Enemy(Animation& animation)
 :   animation(animation) 
 { 
-    posX = posY = 0;
+    srand(time(NULL));
+	
+	posX = posY = 0;
     direction = LEFT;
 }
 
@@ -44,18 +47,44 @@ void Enemy::warp(int x, int y)
 
 void Enemy::move(Environment env)
 {
-  // If we can continue moving in the direction, don't change directions
-  if (canMoveDirection(x(), y(), env, direction) == false) {
-    
-    // Otherwise, we need to select a new direction
-    do {
-      direction = (direction + 1) % 4;
-    }
-    while (canMoveDirection(x(), y(), env, direction) == false);
-  }
+	if (isInCentreOfCell(posX - 15, posY - 15))
+	{
+		int dir = rand() % 4;
+		int i;
+		
+		if (canMoveDirection(posX, posY, env, direction))
+		{
+			// Randomly select a direction to move OTHER than the opposite of current direction.
+			for (i = 0; i < 4; i++)
+			{
+				if (canMoveDirection(posX, posY, env, (dir + i) % 4))
+				{
+					if (!(direction == RIGHT && (dir + i) % 4 == LEFT) &&
+						!(direction == LEFT && (dir + i) % 4 == RIGHT) &&
+						!(direction == UP && (dir + i) % 4 == DOWN) &&
+						!(direction == DOWN && (dir + i) % 4 == UP))
+					{
+						direction = (dir + i) % 4;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			// Randomly select a direction to move from ALL possible directions.
+			for (i = 0; i < 4; i++)
+			{
+				if (canMoveDirection(posX, posY, env, (dir + i) % 4))
+				{
+					direction = (dir + i) % 4;
+					break;
+				}
+			}
+		}
+	}
 
-  // Then move in that direction
-  moveDirection(direction);
+	moveDirection(direction);
 }
 
 
@@ -82,5 +111,5 @@ void Enemy::draw() const
 { 
     Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % animation.size()); 
   
-    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1); 
+    image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1); 
 } 

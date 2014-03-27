@@ -15,6 +15,7 @@
 
 #include "Animation.h"
 #include "Enemy.h"
+#include "Utilities.h"
 #include "ZOrder.h"
 
 #include "Shot.h"
@@ -33,13 +34,31 @@ int Shot::y() const { return posY; }
 bool Shot::active() const { return isActive; }
 
 
-void Shot::activate(int x, int y, int direction, std::list<Enemy>& enemies)
+void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies)
 {
 	posX = x;
 	posY = y;
 	startTime = Gosu::milliseconds();
 	isActive = true;
-	shotDirection = direction;
+	
+	if (shotDirection == LEFT)
+		shotCycle = LEFT_SHOT_CYCLE;
+	else if (shotDirection == RIGHT)
+		shotCycle = RIGHT_SHOT_CYCLE;
+	else if (shotDirection == UP)
+	{
+		if (playerWalkCycleDirection == RIGHT)
+			shotCycle = RIGHT_UP_SHOT_CYCLE;
+		else // if (playerWalkCycleDirection == LEFT)
+			shotCycle = LEFT_UP_SHOT_CYCLE;
+	}
+	else // if (shotDirection == DOWN)
+	{
+		if (playerWalkCycleDirection == RIGHT)
+			shotCycle = RIGHT_DOWN_SHOT_CYCLE;
+		else // if (playerWalkCycleDirection == LEFT)
+			shotCycle = LEFT_DOWN_SHOT_CYCLE;
+	}
 
 	std::list<Enemy>::iterator cur = enemies.begin();
     while (cur != enemies.end())
@@ -55,9 +74,9 @@ void Shot::draw()
 { 
     if (isActive)
 	{
-		Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotDirection * NUMBER_OF_FRAMES);
+		Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
 	  
-		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zShot, 1, 1);
+		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zShot, 1, 1);
 
 		if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1)
 		{
