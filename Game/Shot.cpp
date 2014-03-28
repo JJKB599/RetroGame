@@ -24,8 +24,8 @@
 Shot::Shot(Animation& animation)
 :   animation(animation) 
 { 
-    posX = posY = 0;
-	isActive = false;
+  posX = posY = 0;
+  isActive = false;
 }
 
 
@@ -61,26 +61,27 @@ void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirectio
 	}
 
 	std::list<Enemy>::iterator cur = enemies.begin();
-    while (cur != enemies.end())
-    {
-        if (Gosu::distance((double)posX, (double)posY, (double)cur->x(), (double)cur->y()) < 30)
-            cur = enemies.erase(cur);
-        else
-            ++cur;
+    while (cur != enemies.end()) {
+      if (Gosu::distance((double)posX, (double)posY, (double)cur->x(), (double)cur->y()) < 30)
+          cur = enemies.erase(cur);
+      else
+          ++cur;
     }
 }
 
 void Shot::draw()
 { 
-    if (isActive)
-	{
-		Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
-	  
-		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zShot, 1, 1);
+  if (isActive) {
+    Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
+    
+    image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zShot, 1, 1);
 
-		if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1)
-		{
-			isActive = false;
-		}
+    std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguish.wav";
+    Gosu::Sample sample = Gosu::Sample(path);
+    sample.play();
+
+    if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1) {
+      isActive = false;
+    }
 	}
 }
