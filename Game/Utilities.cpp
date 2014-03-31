@@ -110,5 +110,5 @@ int mapYToScreenY(int mapY)
 
 bool isInCentreOfCell(int x, int y)
 {
-	return (x % TILE_SIZE == 0 && y % TILE_SIZE == 0);
+	return (x % (TILE_SIZE / 2) == 0 && y % (TILE_SIZE / 2) == 0);
 }
