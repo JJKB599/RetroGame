@@ -58,10 +58,10 @@ class GameWindow : public Gosu::Window
           int numWalls = 25;
           wall walls[] = {
               // Outer walls
-              wall(0, 0, screenXToMapX(XRES), 0),
-              wall(0, 0, 0, screenYToMapY(YRES)),
-              wall(0, screenYToMapY(YRES), screenXToMapX(XRES), screenYToMapY(YRES)),
-              wall(screenXToMapX(XRES), screenYToMapY(YRES), screenXToMapX(XRES), 0),
+              wall(0, 0, XRES, 0),
+              wall(0, 0, 0, YRES),
+              wall(0, YRES, XRES, YRES),
+              wall(XRES, YRES, XRES, 0),
               // Environment walls
               // This matches the first map when it is fitted to the top left corner of the screen
               // Really should come up with a dynamic way of generating this...

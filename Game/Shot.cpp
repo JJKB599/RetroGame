@@ -74,7 +74,7 @@ void Shot::draw()
   if (isActive) {
     Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
     
-    image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zShot, 1, 1);
+    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zShot, 1, 1);
 
     std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguish.wav";
     Gosu::Sample sample = Gosu::Sample(path);
