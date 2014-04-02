@@ -42,7 +42,7 @@ class GameWindow : public Gosu::Window
         { 
           setCaption(L"Fire Mazing");
 
-		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.png";
+		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
 		  backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
 
       std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
