@@ -88,27 +88,7 @@ bool canMoveDirection(int x, int y, Environment environment, int direction)
 }
 
 
-int screenXToMapX(int screenX)
-{
-	return screenX - 16;
-}
-
-int screenYToMapY(int screenY)
-{
-	return screenY - 29;
-}
-
-int mapXToScreenX(int mapX)
-{
-	return mapX + 16;
-}
-
-int mapYToScreenY(int mapY)
-{
-	return mapY + 29;
-}
-
 bool isInCentreOfCell(int x, int y)
 {
-	return (x % TILE_SIZE == 0 && y % TILE_SIZE == 0);
+	return (x % (TILE_SIZE / 2) == 0 && y % (TILE_SIZE / 2) == 0);
 }

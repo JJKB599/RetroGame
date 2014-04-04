@@ -38,18 +38,18 @@ class GameWindow : public Gosu::Window
         GameWindow() 
         :   Window(XRES, YRES, FULLSCREEN), 
             player(playerAnim),
-			shot(shotAnim)
+            shot(shotAnim)
         { 
           setCaption(L"Fire Mazing");
 
-		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.png";
+		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
 		  backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
 
-          std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
+      std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), playerGraphic, 30, 30, false, playerAnim);
           
 		  std::wstring enemyGraphic = Gosu::resourcePrefix() + L"media/enemy/fire.bmp";
-          Gosu::imagesFromTiledBitmap(graphics(), enemyGraphic, 30, 30, false, enemyAnim);
+      Gosu::imagesFromTiledBitmap(graphics(), enemyGraphic, 30, 30, false, enemyAnim);
 
 		  std::wstring shotGraphic = Gosu::resourcePrefix() + L"media/shot/shot.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), shotGraphic, 30, 30, false, shotAnim);
@@ -58,10 +58,10 @@ class GameWindow : public Gosu::Window
           int numWalls = 25;
           wall walls[] = {
               // Outer walls
-              wall(0, 0, screenXToMapX(XRES), 0),
-              wall(0, 0, 0, screenYToMapY(YRES)),
-              wall(0, screenYToMapY(YRES), screenXToMapX(XRES), screenYToMapY(YRES)),
-              wall(screenXToMapX(XRES), screenYToMapY(YRES), screenXToMapX(XRES), 0),
+              wall(0, 0, XRES, 0),
+              wall(0, 0, 0, YRES),
+              wall(0, YRES, XRES, YRES),
+              wall(XRES, YRES, XRES, 0),
               // Environment walls
               // This matches the first map when it is fitted to the top left corner of the screen
               // Really should come up with a dynamic way of generating this...

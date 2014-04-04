@@ -205,17 +205,17 @@ void Player::draw()
 	if (dying)
 	{
 		Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % 2 /* number of frames in dying animation cycle */ + DYING_CYCLE * NUMBER_OF_FRAMES);
-		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
 	}
 	else if (standingStill)
 	{
 		Gosu::Image& image = *animation.at(currentWalkCycle * NUMBER_OF_FRAMES);
-		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
 	}
 	else
 	{
 		Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % NUMBER_OF_FRAMES + currentWalkCycle * NUMBER_OF_FRAMES);
-		image.draw(mapXToScreenX(posX) - image.width() / 2.0, mapYToScreenY(posY) - image.height() / 2.0, zPlayer, 1, 1);
+		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
 	}
 
 	//standingStill = true;
