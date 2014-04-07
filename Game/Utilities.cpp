@@ -90,5 +90,10 @@ bool canMoveDirection(int x, int y, Environment environment, int direction)
 
 bool isInCentreOfCell(int x, int y)
 {
+	return (x % TILE_SIZE == 0 && y % TILE_SIZE == 0);
+}
+
+bool isInCentreOrEdgeOfCell(int x, int y)
+{
 	return (x % (TILE_SIZE / 2) == 0 && y % (TILE_SIZE / 2) == 0);
 }

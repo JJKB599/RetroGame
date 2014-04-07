@@ -47,6 +47,9 @@ class Player
 
 	bool dying;
 
+	int ammo;
+	int health;
+
     public:
 		Player(Animation& animation);
 
@@ -72,7 +75,7 @@ class Player
 		void moveGunUp();
 		void moveGunDown();
 
-		void shoot(Shot& shot);
+		void shoot(Shot& shot, std::list<Enemy>& enemies);
 
 		void checkForEnemyCollisions(std::list<Enemy>& enemies);
 
