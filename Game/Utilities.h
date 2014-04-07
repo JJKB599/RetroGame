@@ -13,5 +13,6 @@ bool collisionDidOccur(Player player, Enemy enemy);
 bool canMoveDirection(int x, int y, Environment environment, int direction);
 
 bool isInCentreOfCell(int x, int y);
+bool isInCentreOrEdgeOfCell(int x, int y);
 
 #endif

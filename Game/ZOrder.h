@@ -4,8 +4,10 @@
 enum ZOrder
 {
     zBackground,
-	zEnemy,
+	zItem,
 	zShot,
+	zSpotlight,
+	zEnemy,
     zPlayer,
     zUI
 };

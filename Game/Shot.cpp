@@ -71,17 +71,17 @@ void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirectio
 
 void Shot::draw()
 { 
-  if (isActive) {
-    Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
-    
-    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zShot, 1, 1);
+	if (isActive) {
+		Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
 
-    std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguish.wav";
-    Gosu::Sample sample = Gosu::Sample(path);
-    sample.play();
+		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zShot, 1, 1);
 
-    if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1) {
-      isActive = false;
-    }
+		std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguish.wav";
+		/*Gosu::Sample sample = Gosu::Sample(path);
+		sample.play();*/
+		Gosu::Sample(path).play();
+
+		if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1)
+			isActive = false;
 	}
 }

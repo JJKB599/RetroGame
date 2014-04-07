@@ -18,7 +18,9 @@
 #include "GameConstants.h"
 #include "Player.h"
 #include "Shot.h"
+#include "Spotlight.h"
 #include "Utilities.h"
+#include "ZOrder.h"
 
   
 class GameWindow : public Gosu::Window 
@@ -33,23 +35,25 @@ class GameWindow : public Gosu::Window
 	std::list<Enemy> enemies;
 	Environment environment;
 	Shot shot;
+	Spotlight spotlight;
   
     public: 
         GameWindow() 
         :   Window(XRES, YRES, FULLSCREEN), 
             player(playerAnim),
-            shot(shotAnim)
+            shot(shotAnim),
+			spotlight(graphics())
         { 
           setCaption(L"Fire Mazing");
 
 		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
 		  backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
 
-      std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
+		  std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), playerGraphic, 30, 30, false, playerAnim);
           
 		  std::wstring enemyGraphic = Gosu::resourcePrefix() + L"media/enemy/fire.bmp";
-      Gosu::imagesFromTiledBitmap(graphics(), enemyGraphic, 30, 30, false, enemyAnim);
+		  Gosu::imagesFromTiledBitmap(graphics(), enemyGraphic, 30, 30, false, enemyAnim);
 
 		  std::wstring shotGraphic = Gosu::resourcePrefix() + L"media/shot/shot.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), shotGraphic, 30, 30, false, shotAnim);
@@ -196,8 +200,9 @@ class GameWindow : public Gosu::Window
 			{
 				i->draw();
 			}
-			backgroundImage->draw(0,0,0);
-        } 
+			spotlight.draw(player, 50);
+			backgroundImage->draw(0, 0, zBackground);
+		}
   
         void buttonDown(Gosu::Button btn) 
         { 
@@ -208,15 +213,7 @@ class GameWindow : public Gosu::Window
 		  {
 			  if (btn == Gosu::kbSpace && player.isStandingStill())
 			  {
-				  int shotDirection = player.shotDirection();
-				  if (shotDirection == UP)
-					  shot.activate(player.x(), player.y() - 30, UP, player.getCurrentWalkCycleDirection(), enemies);
-				  if (shotDirection == DOWN)
-					  shot.activate(player.x(), player.y() + 30, DOWN, player.getCurrentWalkCycleDirection(), enemies);
-				  if (shotDirection == LEFT)
-					  shot.activate(player.x() - 30, player.y(), LEFT, player.getCurrentWalkCycleDirection(), enemies);
-				  if (shotDirection == RIGHT)
-					  shot.activate(player.x() + 30, player.y(), RIGHT, player.getCurrentWalkCycleDirection(), enemies);
+				  player.shoot(shot, enemies);
 			  }
 			  else if (btn == Gosu::kbW)
 			  {

@@ -32,6 +32,8 @@ Player::Player(Animation& animation)
 	gunPosition = GUN_DOWN;
 	standingStill = true;
 	dying = false;
+	ammo = 20;
+	health = 10;
 }
 
 
@@ -180,6 +182,25 @@ void Player::moveGunDown()
 		else if (gunPosition == GUN_FORWARD)
 			gunPosition = GUN_DOWN;
 		changeWalkCycle();
+	}
+}
+
+
+void Player::shoot(Shot& shot, std::list<Enemy>& enemies)
+{
+	if (ammo > 0)
+	{
+		//int shotDirection = this.shotDirection();
+		if (shotDirection() == UP)
+			shot.activate(posX, posY - 30, UP, getCurrentWalkCycleDirection(), enemies);
+		else if (shotDirection() == DOWN)
+			shot.activate(posX, posY + 30, DOWN, getCurrentWalkCycleDirection(), enemies);
+		else if (shotDirection() == LEFT)
+			shot.activate(posX - 30, posY, LEFT, getCurrentWalkCycleDirection(), enemies);
+		else // if (shotDirection() == RIGHT)
+			shot.activate(posX + 30, posY, RIGHT, getCurrentWalkCycleDirection(), enemies);
+
+		ammo--;
 	}
 }
 

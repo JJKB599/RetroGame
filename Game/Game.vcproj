@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Spotlight.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Utilities.cpp"
 				>
 			</File>
@@ -226,6 +230,10 @@
 			</File>
 			<File
 				RelativePath=".\Shot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Spotlight.h"
 				>
 			</File>
 			<File
