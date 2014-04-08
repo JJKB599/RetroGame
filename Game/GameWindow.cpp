@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "Shot.h"
 #include "Spotlight.h"
+#include "Stair.h"
 #include "Utilities.h"
 #include "ZOrder.h"
 
@@ -28,14 +29,16 @@ class GameWindow : public Gosu::Window
 	std::auto_ptr<Gosu::Image> backgroundImage;
 	
 	Animation playerAnim; 
-    Animation enemyAnim;
+  Animation enemyAnim;
 	Animation shotAnim;
   
-    Player player;
+  Player player;
 	std::list<Enemy> enemies;
 	Environment environment;
 	Shot shot;
 	Spotlight spotlight;
+  Stair up;
+  Stair down;
   
     public: 
         GameWindow() 
@@ -46,9 +49,6 @@ class GameWindow : public Gosu::Window
         { 
           setCaption(L"Fire Mazing");
 
-		  std::wstring filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
-		  backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
-
 		  std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), playerGraphic, 30, 30, false, playerAnim);
           
@@ -57,67 +57,6 @@ class GameWindow : public Gosu::Window
 
 		  std::wstring shotGraphic = Gosu::resourcePrefix() + L"media/shot/shot.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), shotGraphic, 30, 30, false, shotAnim);
-
-		  // Create the walls
-          int numWalls = 25;
-          wall walls[] = {
-              // Outer walls
-              wall(0, 0, XRES, 0),
-              wall(0, 0, 0, YRES),
-              wall(0, YRES, XRES, YRES),
-              wall(XRES, YRES, XRES, 0),
-              // Environment walls
-              // This matches the first map when it is fitted to the top left corner of the screen
-              // Really should come up with a dynamic way of generating this...
-              wall(30, 30, 30, 120),
-              wall(30, 30, 90, 30),
-              wall(90, 30, 90, 60),
-              wall(90, 60, 60, 60),
-              wall(30, 90, 120, 90),
-              wall(120, 0, 120, 90),
-              wall(30, 120, 60, 120),
-              wall(60, 120, 60, 180),
-              wall(0, 180, 30, 180),
-              wall(30, 180, 30, 150),
-              wall(90, 180, 210, 180),
-              wall(120, 180, 120, 210),
-              wall(90, 180, 90, 120),
-              wall(90, 120, 150, 120),
-              wall(150, 120, 150, 30),
-              wall(150, 30, 180, 30),
-              wall(210, 30, 210, 180),
-              wall(210, 60, 180, 60),
-              wall(150, 90, 180, 90),
-              wall(210, 120, 180, 120),
-              wall(210, 150, 120, 150)
-			  /*wall(16, 29, 256, 29),
-			  wall(256, 29, 256, 239),
-			  wall(16, 29, 16, 239),
-			  wall(16, 239, 256, 239),
-
-			  wall(46, 59, 46, 149),
-              wall(46, 59, 106, 59),
-              wall(106, 59, 106, 89),
-              wall(106, 89, 76, 89),
-              wall(46, 119, 136, 119),
-              wall(136, 29, 136, 119),
-              wall(46, 149, 76, 149),
-              wall(76, 149, 76, 209),
-              wall(16, 209, 46, 209),
-              wall(46, 209, 46, 179),
-              wall(106, 209, 226, 209),
-              wall(136, 209, 136, 239),
-              wall(106, 209, 106, 149),
-              wall(106, 149, 166, 149),
-              wall(166, 149, 166, 59),
-              wall(166, 59, 196, 59),
-              wall(226, 59, 226, 209),
-              wall(226, 89, 196, 89),
-              wall(166, 119, 196, 119),
-              wall(226, 149, 196, 149),
-              wall(226, 179, 136, 179)*/
-            };
-          environment = Environment(numWalls, walls);
 
 		  
           /* Set initial positions */
@@ -225,6 +164,62 @@ class GameWindow : public Gosu::Window
 			  }
 		  }
         }
+  
+  void loadLevel(int level) {
+    std::wstring filename;
+    int numWalls = 0;
+    wall *walls = NULL;
+    
+    switch (level) {
+      case 1: {
+        // Get map graphic
+        filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
+
+        // Get map walls
+        numWalls = 4;
+        wall someWalls[] = {
+            wall(0, 0, 240, 0),
+            wall(0, 0, 0, 210),
+            wall(0, 210, 240, 210),
+            wall(210, 210, 240, 0)
+        };
+        walls = (wall *)realloc(walls, numWalls * sizeof(wall));
+        memcpy(walls, someWalls, (numWalls * sizeof(wall)));
+        
+        // Set entrances and exits
+        down = Stair(0, 30, false);
+        up = Stair(90, 180, true);
+        
+        break;
+      }
+      case 2: {
+          // Get map graphic
+          filename = Gosu::resourcePrefix() + L"media/maps/map2.bmp";
+
+          // Get map walls
+          numWalls = 4;
+          wall someWalls[] = {
+              wall(0, 0, 240, 0),
+              wall(0, 0, 0, 210),
+              wall(0, 210, 240, 210),
+              wall(210, 210, 240, 0)
+          };
+          walls = (wall *)realloc(walls, numWalls * sizeof(wall));
+          memcpy(walls, someWalls, (numWalls * sizeof(wall)));
+        
+        // Set entrances and exits
+        down = Stair(60, 180, false);
+        up = Stair(0, 90, true);
+        
+        break;
+      }
+      default:
+        break;
+    }
+    
+    backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
+    environment = Environment(numWalls, walls);
+  }
 };
 
 
