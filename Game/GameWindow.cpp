@@ -187,8 +187,8 @@ class GameWindow : public Gosu::Window
         memcpy(walls, someWalls, (numWalls * sizeof(wall)));
         
         // Set entrances and exits
-        down = Stair(0, 30, false);
-        up = Stair(90, 180, true);
+        down = Stair(0, 45, false);
+        up = Stair(90, 195, true);
         
         break;
       }
@@ -208,8 +208,8 @@ class GameWindow : public Gosu::Window
           memcpy(walls, someWalls, (numWalls * sizeof(wall)));
         
         // Set entrances and exits
-        down = Stair(60, 180, false);
-        up = Stair(0, 90, true);
+        down = Stair(60, 195, false);
+        up = Stair(0, 105, true);
         
         break;
       }
