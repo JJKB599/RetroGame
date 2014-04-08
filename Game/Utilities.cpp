@@ -3,9 +3,9 @@
 #include "Utilities.h"
 
 
-bool collisionDidOccur(Player player, Enemy enemy)
+bool collisionDidOccur(Player player, Stair stair)
 {
-  if (abs(player.x() - enemy.x()) <= 30 && abs(player.y() - enemy.y()) <= 30)
+  if (abs(player.x() - stair.x()) <= 30 && abs(player.y() - stair.y()) <= 30)
     return true;
   return false;
 }
