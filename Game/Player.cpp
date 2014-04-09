@@ -40,6 +40,15 @@ Player::Player(Animation& animation)
 	ammo = startAmmo = 20;
 	health = startHealth = 10;
 	score = 0;
+	ascending = true;
+
+	song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
+	song1 = new Gosu::Song(song1Filename);
+
+	song2Filename = Gosu::resourcePrefix() + L"media/music/fangSpedUp.ogg";
+	song2 = new Gosu::Song(song2Filename);
+
+	song1->play(true);
 }
 
 
@@ -53,6 +62,7 @@ bool Player::isStandingStill() const { return standingStill; }
 int Player::getAmmo() const { return ammo; }
 int Player::getHealth() const { return health; }
 int Player::getScore() const { return score; }
+bool Player::isAscending() const { return ascending; }
 
 
 int Player::shotDirection() const
@@ -258,16 +268,34 @@ void Player::checkForItemCollisions(std::list<Item>& items)
 		if (Gosu::distance(posX, posY, cur->x(), cur->y()) < 30)
 		{
 			if (cur->getType() == AMMO)
+			{
 				ammo = startAmmo;
+				score++;
+				if (score > 9999)
+					score = 9999;
+				Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/pickup.wav").play();
+			}
 			else if (cur->getType() == HEALTH)
+			{
 				health = startHealth;
+				score++;
+				if (score > 9999)
+					score = 9999;
+				Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/pickup.wav").play();
+			}
+			else // if (cur->getType() == KITTENS)
+			{
+				song1->stop();
+				score += 20;
+				if (score > 9999)
+					score = 9999;
+				Gosu::SampleInstance sampleInstance = Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/kittenPickup.wav").play();
+				while (sampleInstance.playing()) ;
+				ascending = false;
+				song2->play(true);
+			}
 
 			cur = items.erase(cur);
-			score++;
-			if (score > 9999)
-				score = 9999;
-
-			Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/pickup.wav").play();
 
 			break;
 		}
@@ -368,4 +396,10 @@ void Player::changeWalkCycle()
 				currentWalkCycle = RIGHT_GUN_UP_CYCLE;
 		}
 	}
+}
+
+
+void Player::songUpdate()
+{
+	song1->update();
 }
