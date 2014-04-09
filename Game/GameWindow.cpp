@@ -35,15 +35,13 @@ class GameWindow : public Gosu::Window
 	Animation shotAnim;
 	Animation ammoAnim;
 	Animation healthAnim;
+	Animation kittensAnim;
 	Animation ammoBarAnim;
 	Animation healthBarAnim;
 	Animation numbersAnim;
 
 	std::auto_ptr<Gosu::Image> scoreLabelImage;
 	std::auto_ptr<Gosu::Image> timeLabelImage;
-
-	Gosu::Song* song1;
-	std::wstring song1Filename;
   
 	Player player;
 	std::list<Enemy> enemies;
@@ -78,6 +76,9 @@ class GameWindow : public Gosu::Window
 		  std::wstring healthGraphic = Gosu::resourcePrefix() + L"media/items/health.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), healthGraphic, 30, 30, false, healthAnim);
 
+		  std::wstring kittensGraphic = Gosu::resourcePrefix() + L"media/items/kittens.bmp";
+		  Gosu::imagesFromTiledBitmap(graphics(), kittensGraphic, 30, 30, false, kittensAnim);
+
 		  std::wstring ammoBarGraphic = Gosu::resourcePrefix() + L"media/ui/ammoBar.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), ammoBarGraphic, 16, 94, false, ammoBarAnim);
 
@@ -89,9 +90,6 @@ class GameWindow : public Gosu::Window
 
 		  scoreLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/score.bmp", true));
 		  timeLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/time.bmp", true));
-
-		  song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
-		  song1 = new Gosu::Song(song1Filename);
 
 		  
           /* Set initial positions */
@@ -118,16 +116,16 @@ class GameWindow : public Gosu::Window
 		  ++cur;
 
 		  // Initializing items.
-		  items.push_back(Item(ammoAnim, AMMO, 45, 45));
+		  //items.push_back(Item(ammoAnim, AMMO, 45, 45));
 		  items.push_back(Item(healthAnim, HEALTH, 105, 105));
+		  items.push_back(Item(kittensAnim, KITTENS, 45, 45));
 
 		  loadLevel(1);
         } 
   
         void update() 
         {
-		  song1->update();
-	
+		  player.songUpdate();
 		  std::list<Enemy>::iterator cur;
 
 		  // Check for collisions
@@ -253,8 +251,6 @@ class GameWindow : public Gosu::Window
         // Set entrances and exits
         down = Stair(0, 45, false);
         up = Stair(90, 195, true);
-
-		song1->play(true);
         
         break;
       }

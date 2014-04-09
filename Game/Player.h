@@ -60,7 +60,14 @@ class Player
 	int startAmmo;
 	int startHealth;
 
+	bool ascending;
+
 	int onFireFrameCount;
+
+	Gosu::Song* song1;
+	std::wstring song1Filename;
+	Gosu::Song* song2;
+	std::wstring song2Filename;
 
     public:
 		Player(Animation& animation);
@@ -75,6 +82,7 @@ class Player
 		int getAmmo() const;
 		int getHealth() const;
 		int getScore() const;
+		bool isAscending() const;
 
 		int shotDirection() const;
 
@@ -98,6 +106,8 @@ class Player
 		void checkForItemCollisions(std::list<Item>& items);
 
         void draw();
+
+		void songUpdate();
 
 	private:
 		void changeWalkCycle();
