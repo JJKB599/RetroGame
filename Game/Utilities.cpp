@@ -3,7 +3,7 @@
 #include "Utilities.h"
 
 
-bool collisionDidOccur(Player player, Stair stair)
+bool playerOnStairs(Player player, Stair stair)
 {
   if (abs(player.x() - stair.x()) <= 15 && abs(player.y() - stair.y()) <= 15)
     return true;

@@ -51,7 +51,9 @@ class GameWindow : public Gosu::Window
 	Spotlight spotlight;
 	Stair up;
 	Stair down;
-  
+  int level = 1;
+  int round = 1;
+
     public: 
         GameWindow() 
         :   Window(XRES, YRES, FULLSCREEN), 
@@ -91,42 +93,22 @@ class GameWindow : public Gosu::Window
 		  scoreLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/score.bmp", true));
 		  timeLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/time.bmp", true));
 
-		  
-          /* Set initial positions */
-		  
-          player.warp(135, 105);
-
-		  enemies.push_back(Enemy(enemyAnim));
-		  enemies.push_back(Enemy(enemyAnim));
-		  enemies.push_back(Enemy(enemyAnim));
-		  enemies.push_back(Enemy(enemyAnim));
-		  enemies.push_back(Enemy(enemyAnim));
-
-		  // Initializing enemy list.
-		  std::list<Enemy>::iterator cur = enemies.begin();
-		  cur->warp(135,75);
-		  ++cur;
-		  cur->warp(165,165);
-		  ++cur;
-		  cur->warp(225,195);
-		  ++cur;
-		  cur->warp(195,195);
-		  ++cur;
-		  cur->warp(45,45);
-		  ++cur;
-
-		  // Initializing items.
-		  //items.push_back(Item(ammoAnim, AMMO, 45, 45));
-		  items.push_back(Item(healthAnim, HEALTH, 105, 105));
-		  items.push_back(Item(kittensAnim, KITTENS, 45, 45));
-
-		  loadLevel(1);
+		  loadLevel(level);
         } 
   
         void update() 
         {
 		  player.songUpdate();
 		  std::list<Enemy>::iterator cur;
+
+      // Check if the player is on a set of stairs
+      if (playerOnStairs(player, up) && player.isAscending()) {
+        loadLevel(++level);
+      }
+
+      if (playerOnStairs(player, down) && !player.isAscending()) {
+        loadLevel(--level);
+      }
 
 		  // Check for collisions
 		  player.checkForEnemyCollisions(enemies);
@@ -227,6 +209,29 @@ class GameWindow : public Gosu::Window
 		  }
         }
   
+  
+    void spawnEnemies() {
+    enemies.push_back(Enemy(enemyAnim));
+    enemies.push_back(Enemy(enemyAnim));
+    enemies.push_back(Enemy(enemyAnim));
+    enemies.push_back(Enemy(enemyAnim));
+    enemies.push_back(Enemy(enemyAnim));
+
+    // Initializing enemy list.
+    std::list<Enemy>::iterator cur = enemies.begin();
+    cur->warp(135,75);
+    ++cur;
+    cur->warp(165,165);
+    ++cur;
+    cur->warp(225,195);
+    ++cur;
+    cur->warp(195,195);
+    ++cur;
+    cur->warp(45,45);
+    ++cur;
+  }
+
+  
   void loadLevel(int level) {
     std::wstring filename;
     int numWalls = 0;
@@ -252,6 +257,13 @@ class GameWindow : public Gosu::Window
         down = Stair(0, 45, false);
         up = Stair(90, 195, true);
         
+        // Set player location
+        player.warp(down.x(), down.y());
+        
+        // Set items
+        items.push_back(Item(ammoAnim, AMMO, 45, 45));
+        items.push_back(Item(healthAnim, HEALTH, 105, 105));
+        
         break;
       }
       case 2: {
@@ -273,8 +285,45 @@ class GameWindow : public Gosu::Window
         down = Stair(60, 195, false);
         up = Stair(0, 105, true);
         
+        // Set player location
+        player.warp(down.x(), down.y());
+        
+        // Set items
+        items.push_back(Item(ammoAnim, AMMO, 45, 45));
+        items.push_back(Item(healthAnim, HEALTH, 105, 105));
+        
         break;
       }
+      case 3: {
+          // Get map graphic
+          filename = Gosu::resourcePrefix() + L"media/maps/map3.bmp";
+
+          // Get map walls
+          numWalls = 4;
+          wall someWalls[] = {
+              wall(0, 0, 240, 0),
+              wall(0, 0, 0, 210),
+              wall(0, 210, 240, 210),
+              wall(210, 210, 240, 0)
+          };
+          walls = (wall *)realloc(walls, numWalls * sizeof(wall));
+          memcpy(walls, someWalls, (numWalls * sizeof(wall)));
+        
+        // Set entrances and exits
+        down = Stair(15, 135, false);
+        up = Stair();
+        
+        // Set player location
+        player.warp(down.x(), down.y());
+        
+        // Set items
+        items.push_back(Item(ammoAnim, AMMO, 45, 45));
+        items.push_back(Item(healthAnim, HEALTH, 105, 105));
+        items.push_back(Item(kittensAnim, KITTENS, 45, 45));
+        
+        break;
+      }
+
       default:
         break;
     }
