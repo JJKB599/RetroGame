@@ -16,6 +16,8 @@
 #include "Enemy.h"
 #include "Environment.h"
 #include "GameConstants.h"
+#include "Item.h"
+#include "ItemType.h"
 #include "Player.h"
 #include "Shot.h"
 #include "Spotlight.h"
@@ -28,17 +30,20 @@ class GameWindow : public Gosu::Window
 {
 	std::auto_ptr<Gosu::Image> backgroundImage;
 	
-	Animation playerAnim; 
-  Animation enemyAnim;
+	Animation playerAnim;
+	Animation enemyAnim;
 	Animation shotAnim;
+	Animation ammoAnim;
+	Animation healthAnim;
   
-  Player player;
+	Player player;
 	std::list<Enemy> enemies;
+	std::list<Item> items;
 	Environment environment;
 	Shot shot;
 	Spotlight spotlight;
-  Stair up;
-  Stair down;
+	Stair up;
+	Stair down;
   
     public: 
         GameWindow() 
@@ -57,6 +62,12 @@ class GameWindow : public Gosu::Window
 
 		  std::wstring shotGraphic = Gosu::resourcePrefix() + L"media/shot/shot.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), shotGraphic, 30, 30, false, shotAnim);
+
+		  std::wstring ammoGraphic = Gosu::resourcePrefix() + L"media/items/ammo.bmp";
+		  Gosu::imagesFromTiledBitmap(graphics(), ammoGraphic, 30, 30, false, ammoAnim);
+
+		  std::wstring healthGraphic = Gosu::resourcePrefix() + L"media/items/health.bmp";
+		  Gosu::imagesFromTiledBitmap(graphics(), healthGraphic, 30, 30, false, healthAnim);
 
 		  
           /* Set initial positions */
@@ -81,16 +92,23 @@ class GameWindow : public Gosu::Window
 		  ++cur;
 		  cur->warp(45,45);
 		  ++cur;
+
+		  // Initializing items.
+		  items.push_back(Item(ammoAnim, AMMO, 45, 45));
+		  //items.push_back(Item(healthAnim, HEALTH, 45, 45));
+
+		  loadLevel(2);
         } 
   
         void update() 
         {
 		  std::list<Enemy>::iterator cur;
 
-		  // Check for a collision
+		  // Check for collisions
 		  player.checkForEnemyCollisions(enemies);
+		  player.checkForItemCollisions(items);
 		  
-		  if (!shot.active() && !player.isDying())
+		  if (!shot.active() && !player.isOnFire())
 		  {
 			  // Move the player
 			  if (input().down(Gosu::kbUp) || input().down(Gosu::gpUp))
@@ -105,14 +123,14 @@ class GameWindow : public Gosu::Window
 			  }
 			  else if (input().down(Gosu::kbLeft) || input().down(Gosu::gpLeft))
 			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, LEFT))
+				  if (canMoveDirection(player.x(), player.y(), environment, LEFT) && player.getCurrentWalkCycleDirection() == LEFT)
 					player.moveLeft();
 				  else
 					player.turnLeft();
 			  }
 			  else if (input().down(Gosu::kbRight) || input().down(Gosu::gpRight))
 			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, RIGHT))
+				  if (canMoveDirection(player.x(), player.y(), environment, RIGHT) && player.getCurrentWalkCycleDirection() == RIGHT)
 					player.moveRight();
 				  else
 					player.turnRight();
@@ -139,6 +157,10 @@ class GameWindow : public Gosu::Window
 			{
 				i->draw();
 			}
+			for (std::list<Item>::const_iterator i = items.begin(); i != items.end(); ++i)
+			{
+				i->draw();
+			}
 			spotlight.draw(player, 50);
 			backgroundImage->draw(0, 0, zBackground);
 		}
@@ -148,7 +170,7 @@ class GameWindow : public Gosu::Window
 		  if (btn == Gosu::kbEscape)
 		    close();
 
-		  if (!shot.active() && !player.isDying())
+		  if (!shot.active() && !player.isOnFire())
 		  {
 			  if (btn == Gosu::kbSpace && player.isStandingStill())
 			  {

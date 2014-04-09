@@ -16,6 +16,8 @@
 #include "Animation.h"
 #include "Direction.h"
 #include "Enemy.h"
+#include "Item.h"
+#include "ItemType.h"
 #include "Utilities.h"
 #include "ZOrder.h"
 
@@ -26,21 +28,25 @@ Player::Player(Animation& animation)
 :	animation(animation)
 {
 	posX = posY = 0;
-	currentWalkCycle = LEFT_GUN_DOWN_CYCLE;
+	currentWalkCycle = LEFT_GUN_FORWARD_CYCLE;
 	currentDirection = LEFT;
 	currentWalkCycleDirection = LEFT;
-	gunPosition = GUN_DOWN;
+	gunPosition = GUN_FORWARD;
 	standingStill = true;
-	dying = false;
-	ammo = 20;
-	health = 10;
+	lastTurnTime = Gosu::milliseconds() / 100;
+	onFire = false;
+	dead = false;
+	recovering = false;
+	ammo = startAmmo = 20;
+	health = startHealth = 10;
 }
 
 
 int Player::x() const { return posX; }
 int Player::y() const { return posY; }
 
-bool Player::isDying() const { return dying; }
+bool Player::isOnFire() const { return onFire; }
+bool Player::isDead() const { return dead; }
 bool Player::isStandingStill() const { return standingStill; }
 
 
@@ -79,7 +85,7 @@ void Player::warp(int x, int y)
 
 void Player::move()
 {
-	if (!standingStill && !dying)
+	if (!standingStill && !onFire)
 	{
 		if (currentDirection == LEFT)
 			posX -= 1;
@@ -97,7 +103,7 @@ void Player::move()
 
 void Player::moveLeft()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill && Gosu::milliseconds() / 100 - lastTurnTime > 1)
 	{
 		//posX -= 1;
 		currentDirection = LEFT;
@@ -109,7 +115,7 @@ void Player::moveLeft()
 
 void Player::moveRight()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill && Gosu::milliseconds() / 100 - lastTurnTime > 1)
 	{
 		//posX += 1;
 		currentDirection = RIGHT;
@@ -120,7 +126,7 @@ void Player::moveRight()
 }
 void Player::moveUp()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill)
 	{
 		//posY -= 1;
 		currentDirection = UP;
@@ -131,7 +137,7 @@ void Player::moveUp()
 
 void Player::moveDown()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill)
 	{
 		//posY += 1;
 		currentDirection = DOWN;
@@ -142,28 +148,30 @@ void Player::moveDown()
 
 void Player::turnLeft()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill)
 	{
 		currentDirection = LEFT;
 		currentWalkCycleDirection = LEFT;
 		changeWalkCycle();
+		lastTurnTime = Gosu::milliseconds() / 100;
 	}
 }
 
 void Player::turnRight()
 {
-	if (!dying && standingStill)
+	if (!onFire && standingStill)
 	{
 		currentDirection = RIGHT;
 		currentWalkCycleDirection = RIGHT;
 		changeWalkCycle();
+		lastTurnTime = Gosu::milliseconds() / 100;
 	}
 }
 
 
 void Player::moveGunUp()
 {
-	if (!dying)
+	if (!onFire)
 	{
 		if (gunPosition == GUN_DOWN)
 			gunPosition = GUN_FORWARD;
@@ -175,7 +183,7 @@ void Player::moveGunUp()
 
 void Player::moveGunDown()
 {
-	if (!dying)
+	if (!onFire)
 	{
 		if (gunPosition == GUN_UP)
 			gunPosition = GUN_FORWARD;
@@ -212,7 +220,14 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
     {
         if (Gosu::distance(posX, posY, cur->x(), cur->y()) < 30)
 		{
-            dying = true;
+            if (!onFire && !recovering)
+			{
+				onFire = true;
+				health--;
+				if (health <= 0)
+					dead = true;
+				onFireFrameCount = 0;
+			}
 			break;
 		}
         else
@@ -220,13 +235,57 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
     }
 }
 
+void Player::checkForItemCollisions(std::list<Item>& items)
+{
+	std::list<Item>::iterator cur = items.begin();
+    while (cur != items.end())
+    {
+		if (Gosu::distance(posX, posY, cur->x(), cur->y()) < 30)
+		{
+			if (cur->getType() == AMMO)
+				ammo = startAmmo;
+			else if (cur->getType() == HEALTH)
+				health = startHealth;
+
+			cur = items.erase(cur);
+
+			break;
+		}
+		else
+			++cur;
+	}
+}
+
 
 void Player::draw()
 {
-	if (dying)
+	if (recovering)
 	{
-		Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % 2 /* number of frames in dying animation cycle */ + DYING_CYCLE * NUMBER_OF_FRAMES);
+		if (Gosu::milliseconds() / 100 - recoveringStartTime > 40)
+			recovering = false;
+		if (Gosu::milliseconds() / 100 % 2 == 0) // don't draw every fourth frame if recovering; to give flashing effect
+			return;
+	}
+
+	if (onFire)
+	{
+		int startFrame;
+		if (currentWalkCycleDirection == LEFT)
+			startFrame = ON_FIRE_LEFT_CYCLE * NUMBER_OF_FRAMES;
+		else
+			startFrame = ON_FIRE_RIGHT_CYCLE * NUMBER_OF_FRAMES;
+
+		Gosu::Image& image = *animation.at(onFireFrameCount + startFrame);
 		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
+
+		if (onFireFrameCount < 8)
+			onFireFrameCount++;
+		if (onFireFrameCount == 7 && !dead)
+		{
+			onFire = false;
+			recovering = true;
+			recoveringStartTime = Gosu::milliseconds() / 100;
+		}
 	}
 	else if (standingStill)
 	{

@@ -14,7 +14,6 @@
 #include <sstream> // For int <-> string conversion
 #include <vector>
 
-#include "Enemy.h"
 #include "Player.h"
 
 class Spotlight

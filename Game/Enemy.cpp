@@ -111,5 +111,5 @@ void Enemy::draw() const
 { 
     Gosu::Image& image = *animation.at(Gosu::milliseconds() / 100 % animation.size()); 
   
-    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zPlayer, 1, 1);
+    image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zEnemy, 1, 1);
 } 
