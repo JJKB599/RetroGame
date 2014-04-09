@@ -55,6 +55,7 @@ class Player
 
 	int ammo;
 	int health;
+	int score;
 
 	int startAmmo;
 	int startHealth;
@@ -70,6 +71,10 @@ class Player
 		bool isOnFire() const;
 		bool isDead() const;
 		bool isStandingStill() const;
+
+		int getAmmo() const;
+		int getHealth() const;
+		int getScore() const;
 
 		int shotDirection() const;
 
@@ -87,7 +92,7 @@ class Player
 		void moveGunUp();
 		void moveGunDown();
 
-		void shoot(Shot& shot, std::list<Enemy>& enemies);
+		void shoot(Shot& shot, std::list<Enemy>& enemies, Environment& env);
 
 		void checkForEnemyCollisions(std::list<Enemy>& enemies);
 		void checkForItemCollisions(std::list<Item>& items);
