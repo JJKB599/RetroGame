@@ -39,6 +39,7 @@ Player::Player(Animation& animation)
 	recovering = false;
 	ammo = startAmmo = 20;
 	health = startHealth = 10;
+	score = 0;
 }
 
 
@@ -48,6 +49,10 @@ int Player::y() const { return posY; }
 bool Player::isOnFire() const { return onFire; }
 bool Player::isDead() const { return dead; }
 bool Player::isStandingStill() const { return standingStill; }
+
+int Player::getAmmo() const { return ammo; }
+int Player::getHealth() const { return health; }
+int Player::getScore() const { return score; }
 
 
 int Player::shotDirection() const
@@ -194,21 +199,30 @@ void Player::moveGunDown()
 }
 
 
-void Player::shoot(Shot& shot, std::list<Enemy>& enemies)
+void Player::shoot(Shot& shot, std::list<Enemy>& enemies, Environment& env)
 {
 	if (ammo > 0)
 	{
-		//int shotDirection = this.shotDirection();
-		if (shotDirection() == UP)
-			shot.activate(posX, posY - 30, UP, getCurrentWalkCycleDirection(), enemies);
-		else if (shotDirection() == DOWN)
-			shot.activate(posX, posY + 30, DOWN, getCurrentWalkCycleDirection(), enemies);
-		else if (shotDirection() == LEFT)
-			shot.activate(posX - 30, posY, LEFT, getCurrentWalkCycleDirection(), enemies);
-		else // if (shotDirection() == RIGHT)
-			shot.activate(posX + 30, posY, RIGHT, getCurrentWalkCycleDirection(), enemies);
-
-		ammo--;
+		if (shotDirection() == UP && canMoveDirection(posX, posY, env, UP))
+		{
+			shot.activate(posX, posY - 30, UP, getCurrentWalkCycleDirection(), enemies, score);
+			ammo--;
+		}
+		else if (shotDirection() == DOWN && canMoveDirection(posX, posY, env, DOWN))
+		{
+			shot.activate(posX, posY + 30, DOWN, getCurrentWalkCycleDirection(), enemies, score);
+			ammo--;
+		}
+		else if (shotDirection() == LEFT && canMoveDirection(posX, posY, env, LEFT))
+		{
+			shot.activate(posX - 30, posY, LEFT, getCurrentWalkCycleDirection(), enemies, score);
+			ammo--;
+		}
+		else if (shotDirection() == RIGHT && canMoveDirection(posX, posY, env, RIGHT))
+		{
+			shot.activate(posX + 30, posY, RIGHT, getCurrentWalkCycleDirection(), enemies, score);
+			ammo--;
+		}
 	}
 }
 
@@ -227,6 +241,7 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
 				if (health <= 0)
 					dead = true;
 				onFireFrameCount = 0;
+				Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/catchingFire.wav").play();
 			}
 			break;
 		}
@@ -248,6 +263,11 @@ void Player::checkForItemCollisions(std::list<Item>& items)
 				health = startHealth;
 
 			cur = items.erase(cur);
+			score++;
+			if (score > 9999)
+				score = 9999;
+
+			Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/pickup.wav").play();
 
 			break;
 		}
@@ -286,6 +306,8 @@ void Player::draw()
 			recovering = true;
 			recoveringStartTime = Gosu::milliseconds() / 100;
 		}
+		if (onFireFrameCount == 7 && dead)
+			Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/death.wav").play();
 	}
 	else if (standingStill)
 	{

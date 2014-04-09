@@ -15,6 +15,7 @@
 
 #include "Animation.h"
 #include "Enemy.h"
+#include "Environment.h"
 #include "Utilities.h"
 #include "ZOrder.h"
 
@@ -34,12 +35,14 @@ int Shot::y() const { return posY; }
 bool Shot::active() const { return isActive; }
 
 
-void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies)
+void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies, int& score)
 {
 	posX = x;
 	posY = y;
 	startTime = Gosu::milliseconds();
 	isActive = true;
+
+	std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguishMiss.wav";
 	
 	if (shotDirection == LEFT)
 		shotCycle = LEFT_SHOT_CYCLE;
@@ -63,10 +66,18 @@ void Shot::activate(int x, int y, int shotDirection, int playerWalkCycleDirectio
 	std::list<Enemy>::iterator cur = enemies.begin();
     while (cur != enemies.end()) {
       if (Gosu::distance((double)posX, (double)posY, (double)cur->x(), (double)cur->y()) < 30)
+	  {
           cur = enemies.erase(cur);
+		  score += 2;
+		  if (score > 9999)
+			  score = 9999;
+		  path = Gosu::resourcePrefix() + L"media/sounds/extinguishHit.wav";
+	  }
       else
           ++cur;
     }
+
+	Gosu::Sample(path).play();
 }
 
 void Shot::draw()
@@ -75,11 +86,6 @@ void Shot::draw()
 		Gosu::Image& image = *animation.at((Gosu::milliseconds() - startTime) / 100 % NUMBER_OF_FRAMES + shotCycle * NUMBER_OF_FRAMES);
 
 		image.draw(posX - image.width() / 2.0, posY - image.height() / 2.0, zShot, 1, 1);
-
-		std::wstring path = Gosu::resourcePrefix() + L"media/sounds/extinguish.wav";
-		/*Gosu::Sample sample = Gosu::Sample(path);
-		sample.play();*/
-		Gosu::Sample(path).play();
 
 		if ((Gosu::milliseconds() - startTime) / 100 == NUMBER_OF_FRAMES - 1)
 			isActive = false;

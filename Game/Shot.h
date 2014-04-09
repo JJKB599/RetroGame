@@ -42,7 +42,7 @@ class Shot
 		int x() const;
 		int y() const;
 		bool active() const;
-		void activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies);
+		void activate(int x, int y, int shotDirection, int playerWalkCycleDirection, std::list<Enemy>& enemies, int& score);
 		void draw();
 };
 

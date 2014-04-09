@@ -7,8 +7,8 @@ enum ZOrder
 	zItem,
 	zShot,
 	zSpotlight,
-	zEnemy,
     zPlayer,
+	zEnemy,
     zUI
 };
 
