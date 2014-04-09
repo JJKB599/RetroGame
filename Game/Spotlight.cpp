@@ -13,7 +13,6 @@
 #include <sstream> // For int <-> string conversion
 #include <vector>
 
-#include "Enemy.h"
 #include "Player.h"
 #include "ZOrder.h"
 
@@ -30,7 +29,7 @@ Spotlight::Spotlight(Gosu::Graphics &graphics)
 void Spotlight::draw(Player& player, int magnitude)
 {
 	int x, y;
-	double distanceSquared, distSq;
+	double distanceSquared;
 
 	for (y = 0; y < static_cast<int>(spotlightImage->height()); y++)
 	{
@@ -39,7 +38,7 @@ void Spotlight::draw(Player& player, int magnitude)
 			// Check distance from player.
 			distanceSquared = (x - player.x()) * (x - player.x()) + (y - player.y()) * (y - player.y());
 
-			// Illuminate the pixel based on the distance to the closest object.
+			// Set the pixel based on the distance to the closest object.
 			if (distanceSquared < magnitude * magnitude)
 			{
 				spotlightBitmap->setPixel(x, y, Gosu::Color::NONE);

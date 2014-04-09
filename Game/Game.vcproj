@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Item.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.cpp"
 				>
 			</File>
@@ -192,6 +196,10 @@
 			</File>
 			<File
 				RelativePath=".\Spotlight.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Stair.cpp"
 				>
 			</File>
 			<File
@@ -225,6 +233,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Item.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ItemType.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.h"
 				>
 			</File>
@@ -234,6 +250,10 @@
 			</File>
 			<File
 				RelativePath=".\Spotlight.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Stair.h"
 				>
 			</File>
 			<File

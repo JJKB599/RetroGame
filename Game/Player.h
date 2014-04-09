@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "Enemy.h"
+#include "Item.h"
 #include "Shot.h"
 
 class Player
@@ -29,7 +30,8 @@ class Player
 	static const int RIGHT_GUN_FORWARD_CYCLE = 0;	// starting position of right gun forward walk cycle = 0 * NUMBER_OF_FRAMES
 	static const int LEFT_GUN_UP_CYCLE = 4;			// starting position of left gun up walk cycle = 4 * NUMBER_OF_FRAMES
 	static const int RIGHT_GUN_UP_CYCLE = 1;		// starting position of right gun up walk cycle = 1 * NUMBER_OF_FRAMES
-	static const int DYING_CYCLE = 6;				// starting position of dying cycle = 6 * NUMBER_OF_FRAMES
+	static const int ON_FIRE_RIGHT_CYCLE = 6;		// starting position of on fire right cycle = 6 * NUMBER_OF_FRAMES
+	static const int ON_FIRE_LEFT_CYCLE = 9;		// starting position of on fire right cycle = 6 * NUMBER_OF_FRAMES
 
 	static const int GUN_DOWN = 0;
 	static const int GUN_FORWARD = 1;
@@ -44,11 +46,20 @@ class Player
 	int currentWalkCycleDirection;
 	int gunPosition;
 	bool standingStill;
+	unsigned long lastTurnTime;
 
-	bool dying;
+	bool onFire;
+	bool dead;
+	bool recovering;
+	unsigned long recoveringStartTime;
 
 	int ammo;
 	int health;
+
+	int startAmmo;
+	int startHealth;
+
+	int onFireFrameCount;
 
     public:
 		Player(Animation& animation);
@@ -56,7 +67,8 @@ class Player
 		int x() const;
 		int y() const;
 
-		bool isDying() const;
+		bool isOnFire() const;
+		bool isDead() const;
 		bool isStandingStill() const;
 
 		int shotDirection() const;
@@ -78,6 +90,7 @@ class Player
 		void shoot(Shot& shot, std::list<Enemy>& enemies);
 
 		void checkForEnemyCollisions(std::list<Enemy>& enemies);
+		void checkForItemCollisions(std::list<Item>& items);
 
         void draw();
 
