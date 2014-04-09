@@ -5,7 +5,7 @@
 
 bool collisionDidOccur(Player player, Stair stair)
 {
-  if (abs(player.x() - stair.x()) <= 30 && abs(player.y() - stair.y()) <= 30)
+  if (abs(player.x() - stair.x()) <= 15 && abs(player.y() - stair.y()) <= 15)
     return true;
   return false;
 }

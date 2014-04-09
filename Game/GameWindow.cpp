@@ -35,15 +35,6 @@ class GameWindow : public Gosu::Window
 	Animation shotAnim;
 	Animation ammoAnim;
 	Animation healthAnim;
-	Animation ammoBarAnim;
-	Animation healthBarAnim;
-	Animation numbersAnim;
-
-	std::auto_ptr<Gosu::Image> scoreLabelImage;
-	std::auto_ptr<Gosu::Image> timeLabelImage;
-
-	Gosu::Song* song1;
-	std::wstring song1Filename;
   
 	Player player;
 	std::list<Enemy> enemies;
@@ -78,21 +69,6 @@ class GameWindow : public Gosu::Window
 		  std::wstring healthGraphic = Gosu::resourcePrefix() + L"media/items/health.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), healthGraphic, 30, 30, false, healthAnim);
 
-		  std::wstring ammoBarGraphic = Gosu::resourcePrefix() + L"media/ui/ammoBar.bmp";
-		  Gosu::imagesFromTiledBitmap(graphics(), ammoBarGraphic, 16, 94, false, ammoBarAnim);
-
-		  std::wstring healthBarGraphic = Gosu::resourcePrefix() + L"media/ui/healthBar.bmp";
-		  Gosu::imagesFromTiledBitmap(graphics(), healthBarGraphic, 16, 87, false, healthBarAnim);
-
-		  std::wstring numbersGraphic = Gosu::resourcePrefix() + L"media/ui/numbers.bmp";
-		  Gosu::imagesFromTiledBitmap(graphics(), numbersGraphic, 12, 10, false, numbersAnim);
-
-		  scoreLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/score.bmp", true));
-		  timeLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/time.bmp", true));
-
-		  song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
-		  song1 = new Gosu::Song(song1Filename);
-
 		  
           /* Set initial positions */
 		  
@@ -119,15 +95,13 @@ class GameWindow : public Gosu::Window
 
 		  // Initializing items.
 		  items.push_back(Item(ammoAnim, AMMO, 45, 45));
-		  items.push_back(Item(healthAnim, HEALTH, 105, 105));
+		  //items.push_back(Item(healthAnim, HEALTH, 45, 45));
 
-		  loadLevel(1);
+		  loadLevel(2);
         } 
   
         void update() 
         {
-		  song1->update();
-	
 		  std::list<Enemy>::iterator cur;
 
 		  // Check for collisions
@@ -189,22 +163,6 @@ class GameWindow : public Gosu::Window
 			}
 			spotlight.draw(player, 50);
 			backgroundImage->draw(0, 0, zBackground);
-
-			Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
-			ammoBarImage.draw(240, 92, zUI);
-
-			Gosu::Image& healthBarImage = *healthBarAnim.at(10 - player.getHealth());
-			healthBarImage.draw(240, 3, zUI);
-
-			scoreLabelImage->draw(5, 215, zUI);
-			Gosu::Image& scoreDigit3Image = *numbersAnim.at(player.getScore() / 1000 % 10);
-			scoreDigit3Image.draw(68, 215, zUI);
-			Gosu::Image& scoreDigit2Image = *numbersAnim.at(player.getScore() / 100 % 10);
-			scoreDigit2Image.draw(80, 215, zUI);
-			Gosu::Image& scoreDigit1Image = *numbersAnim.at(player.getScore() / 10 % 10);
-			scoreDigit1Image.draw(92, 215, zUI);
-			Gosu::Image& scoreDigit0Image = *numbersAnim.at(player.getScore() % 10);
-			scoreDigit0Image.draw(104, 215, zUI);
 		}
   
         void buttonDown(Gosu::Button btn) 
@@ -216,7 +174,7 @@ class GameWindow : public Gosu::Window
 		  {
 			  if (btn == Gosu::kbSpace && player.isStandingStill())
 			  {
-				  player.shoot(shot, enemies, environment);
+				  player.shoot(shot, enemies);
 			  }
 			  else if (btn == Gosu::kbW)
 			  {
@@ -251,10 +209,8 @@ class GameWindow : public Gosu::Window
         memcpy(walls, someWalls, (numWalls * sizeof(wall)));
         
         // Set entrances and exits
-        down = Stair(0, 30, false);
-        up = Stair(90, 180, true);
-
-		song1->play(true);
+        down = Stair(0, 45, false);
+        up = Stair(90, 195, true);
         
         break;
       }
@@ -274,8 +230,8 @@ class GameWindow : public Gosu::Window
           memcpy(walls, someWalls, (numWalls * sizeof(wall)));
         
         // Set entrances and exits
-        down = Stair(60, 180, false);
-        up = Stair(0, 90, true);
+        down = Stair(60, 195, false);
+        up = Stair(0, 105, true);
         
         break;
       }
