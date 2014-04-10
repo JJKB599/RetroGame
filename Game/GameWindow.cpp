@@ -122,10 +122,13 @@ class GameWindow : public Gosu::Window
 			  if (playerOnStairs(player, down) && (player.isAscending() == false)) {
 				if (level > 1)
 				  level -= 1;
-				else
-				  close();
+				else {
+          level = 1;
+          round += 1;
+          player.setAscending(true);
+        }
 				loadLevel(level, false);
-			  }
+      }
 
 				  // Check for collisions
 				  player.checkForEnemyCollisions(enemies);
