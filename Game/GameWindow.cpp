@@ -55,14 +55,15 @@ class GameWindow : public Gosu::Window
 	Stair down;
 	int level;
 	int round;
-  bool transitioning;
+    bool transitioning;
 	time_t startTime;
 
 	bool paused;
+	bool onStartScreen;
 
     public: 
         GameWindow() 
-        :   Window(XRES, YRES, true), 
+        :   Window(XRES, YRES, FULLSCREEN), 
             player(playerAnim),
             shot(shotAnim),
 			spotlight(graphics())
@@ -70,8 +71,10 @@ class GameWindow : public Gosu::Window
           setCaption(L"Fire Mazing");
 
 		  paused = false;
+		  onStartScreen = false;
+		  transitioning = false;
 
-		  level = 1;
+		  level = 0;
 		  round = 1;
 
 		  std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
@@ -113,12 +116,13 @@ class GameWindow : public Gosu::Window
             if (difftime(time(NULL), startTime) >= 5) {
               transitioning = false;
               player.setAscending(true);
+			  player.setStandingStill();
               round += 1;
               level = 1;
               loadLevel(1, true);
             }
           }
-          else {
+          else if (!onStartScreen) {
             player.songUpdate();
             std::list<Enemy>::iterator cur;
 
@@ -189,7 +193,7 @@ class GameWindow : public Gosu::Window
         }
   
         void draw() {
-          if (transitioning) {
+          if (transitioning || onStartScreen) {
             backgroundImage->draw(0, 0, zBackground);
             Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
             ammoBarImage.draw(240, 92, zUI);
@@ -206,6 +210,11 @@ class GameWindow : public Gosu::Window
             scoreDigit1Image.draw(92, 215, zUI);
             Gosu::Image& scoreDigit0Image = *numbersAnim.at(player.getScore() % 10);
             scoreDigit0Image.draw(104, 215, zUI);
+
+			for (std::list<Item>::const_iterator i = items.begin(); i != items.end(); ++i)
+            {
+              i->draw();
+            }
           }
           else {
             player.draw();
@@ -218,7 +227,17 @@ class GameWindow : public Gosu::Window
             {
               i->draw();
             }
-            spotlight.draw(player, 50);
+
+			int spotlightRadius;
+			if (round == 1)
+				spotlightRadius = 50;
+			else if (round == 2)
+				spotlightRadius = 42;
+			else if (round == 3)
+				spotlightRadius = 33;
+			else
+				spotlightRadius = 25;
+            spotlight.draw(player, spotlightRadius);
             backgroundImage->draw(0, 0, zBackground);
 
             Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
@@ -241,29 +260,45 @@ class GameWindow : public Gosu::Window
   
         void buttonDown(Gosu::Button btn) 
         { 
-		  if (btn == Gosu::kbEscape)
-		    close();
-		  else if (btn == Gosu::kbReturn)
+		  if (onStartScreen)
 		  {
-			  if (paused)
-				paused = false;
-			  else
-			    paused = true;
+			  onStartScreen = false;
+			  level = 1;
+			  player.resetPlayer();
+			  loadLevel(level, true);
 		  }
-
-		  if (!paused && !shot.active() && !player.isOnFire())
+		  else if (player.isDead())
 		  {
-			  if (btn == Gosu::kbSpace && player.isStandingStill())
+			  onStartScreen = true;
+			  level = 0;
+			  loadLevel(level, true);
+		  }
+		  else
+		  {			
+			  if (btn == Gosu::kbEscape)
+				close();
+			  else if (btn == Gosu::kbReturn || btn == Gosu::kbEnter)
 			  {
-				  player.shoot(shot, enemies, environment);
+				  if (paused)
+					paused = false;
+				  else
+					paused = true;
 			  }
-			  else if (btn == Gosu::kbW)
+
+			  if (!paused && !shot.active() && !player.isOnFire())
 			  {
-				  player.moveGunUp();
-			  }
-			  else if (btn == Gosu::kbS)
-			  {
-				  player.moveGunDown();
+				  if (btn == Gosu::kbSpace && player.isStandingStill())
+				  {
+					  player.shoot(shot, enemies, environment);
+				  }
+				  else if (btn == Gosu::kbW)
+				  {
+					  player.moveGunUp();
+				  }
+				  else if (btn == Gosu::kbS)
+				  {
+					  player.moveGunDown();
+				  }
 			  }
 		  }
         }
@@ -293,11 +328,11 @@ class GameWindow : public Gosu::Window
     despawnEnemies();
   
     // Generate new enemies
-    enemies.push_back(Enemy(enemyAnim));
-    enemies.push_back(Enemy(enemyAnim));
-    enemies.push_back(Enemy(enemyAnim));
-    enemies.push_back(Enemy(enemyAnim));
-    enemies.push_back(Enemy(enemyAnim));
+    enemies.push_back(Enemy(enemyAnim, round));
+    enemies.push_back(Enemy(enemyAnim, round));
+    enemies.push_back(Enemy(enemyAnim, round));
+    enemies.push_back(Enemy(enemyAnim, round));
+    enemies.push_back(Enemy(enemyAnim, round));
 
     std::list<Enemy>::iterator cur = enemies.begin();
     cur->warp(135,75);
@@ -321,13 +356,38 @@ class GameWindow : public Gosu::Window
     switch (level) {
       // transition
       case -1: {
-        filename = L"/Users/jeff/Desktop/gosu test/gosu test/media/ui/transitionScreen.bmp";
+        filename = Gosu::resourcePrefix() + L"media/ui/transitionScreen.bmp";
         
         despawnItems();
         despawnEnemies();
+
+		items.push_back(Item(kittensAnim, KITTENS, 135, 105));
         
         break;
       }
+
+      // start screen
+	  case 0: {
+		  onStartScreen = true;
+		  filename = Gosu::resourcePrefix() + L"media/ui/startScreen.bmp";
+
+		  despawnItems();
+          despawnEnemies();
+
+		  // Set entrances and exits
+          down = Stair(15, 45, false);
+          up = Stair(105, 195, true);
+        
+          // Set player location
+          if (ascending) {
+            player.warp(down.x(), down.y());
+          }
+          else {
+            player.warp(up.x(), up.y());
+          }
+
+		  break;
+	  }
     
       case 1: {
         // Get map graphic
@@ -513,7 +573,10 @@ class GameWindow : public Gosu::Window
         break;
     }
 
-	Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/levelChange.wav").play();
+	if (level == 1 && ascending)
+		player.startSong1();
+	else if (level != 0)
+		Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/levelChange.wav").play();
     
     backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
     environment = Environment(numWalls, walls);

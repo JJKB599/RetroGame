@@ -24,13 +24,15 @@
 #include "Enemy.h"
   
   
-Enemy::Enemy(Animation& animation)
+Enemy::Enemy(Animation& animation, int round)
 :   animation(animation) 
 { 
     srand(time(NULL));
 	
 	posX = posY = 0;
     direction = LEFT;
+
+	roundNumber = round;
 }
 
 
@@ -90,18 +92,24 @@ void Enemy::move(Environment env)
 
 void Enemy::moveDirection(int dir)
 {
+  int offset;
+  if (roundNumber <= 3)
+	  offset = roundNumber;
+  else
+	  offset = 3;
+	
   switch (direction) {
     case LEFT:
-      posX -= 1;
+      posX -= offset;
       break;
     case RIGHT:
-      posX += 1;
+      posX += offset;
       break;
     case UP:
-      posY -= 1;
+      posY -= offset;
       break;
     case DOWN:
-      posY += 1;
+      posY += offset;
       break;
   }
 }

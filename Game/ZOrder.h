@@ -3,13 +3,13 @@
 
 enum ZOrder
 {
-    zBackground,
+    zUI,
+	zBackground,
 	zItem,
 	zShot,
 	zSpotlight,
     zPlayer,
-	zEnemy,
-    zUI
+	zEnemy
 };
 
 #endif

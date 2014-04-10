@@ -19,12 +19,13 @@
 
 class Enemy
 {
-	Animation& animation; 
+	Animation& animation;
+	int roundNumber;
     int posX, posY;
     int direction;
   
     public: 
-        Enemy(Animation& animation);
+        Enemy(Animation& animation, int round);
   
         int x() const;
         int y() const;
