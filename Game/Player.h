@@ -49,6 +49,7 @@ class Player
 	unsigned long lastTurnTime;
 
 	bool onFire;
+	bool dying;
 	bool dead;
 	bool recovering;
 	unsigned long recoveringStartTime;

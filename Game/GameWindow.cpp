@@ -129,13 +129,19 @@ class GameWindow : public Gosu::Window
             // Check if the player is on a set of stairs
             if (playerOnStairs(player, up) && player.isAscending()) {
               if (level < 3)
+			  {
                 level += 1;
+				player.setScore(player.getScore() + 5);
+			  }
               loadLevel(level, true);
             }
 
             if (playerOnStairs(player, down) && (player.isAscending() == false)) {
               if (level > 1)
+			  {
                 level -= 1;
+				player.setScore(player.getScore() + 5);
+			  }
               else {
                 time(&startTime);
                 transitioning = true;
@@ -271,6 +277,7 @@ class GameWindow : public Gosu::Window
 		  {
 			  onStartScreen = true;
 			  level = 0;
+			  round = 1;
 			  loadLevel(level, true);
 		  }
 		  else
@@ -294,10 +301,26 @@ class GameWindow : public Gosu::Window
 				  else if (btn == Gosu::kbW)
 				  {
 					  player.moveGunUp();
+					  player.moveGunUp();
 				  }
 				  else if (btn == Gosu::kbS)
 				  {
 					  player.moveGunDown();
+					  player.moveGunDown();
+				  }
+				  else if (btn == Gosu::kbA)
+				  {
+					  player.moveGunUp();
+					  player.moveGunUp();
+					  player.moveGunDown();
+					  player.turnLeft();
+				  }
+				  else if (btn == Gosu::kbD)
+				  {
+					  player.moveGunUp();
+					  player.moveGunUp();
+					  player.moveGunDown();
+					  player.turnRight();
 				  }
 			  }
 		  }

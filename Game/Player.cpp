@@ -49,6 +49,7 @@ void Player::resetPlayer()
 	standingStill = true;
 	lastTurnTime = Gosu::milliseconds() / 100;
 	onFire = false;
+	dying = false;
 	dead = false;
 	recovering = false;
 	ammo = startAmmo;
@@ -277,7 +278,7 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
 				onFire = true;
 				health -= 2;
 				if (health <= 0)
-					dead = true;
+					dying = true;
 				onFireFrameCount = 0;
 				score--;
 				if (score < 0)
@@ -359,16 +360,18 @@ void Player::draw()
 
 		if (onFireFrameCount < 8)
 			onFireFrameCount++;
-		if (onFireFrameCount == 7 && !dead)
+		if (onFireFrameCount == 7 && !dying)
 		{
 			onFire = false;
 			recovering = true;
 			recoveringStartTime = Gosu::milliseconds() / 100;
 		}
-		if (onFireFrameCount == 7 && dead)
+		if (onFireFrameCount == 7 && dying)
 		{
-			Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/death.wav").play();
 			song->stop();
+			Gosu::SampleInstance sampleInstance = Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/death.wav").play();
+			while (sampleInstance.playing()) ;
+			dead = true;
 		}
 	}
 	else if (standingStill)

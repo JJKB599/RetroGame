@@ -3,7 +3,7 @@
 
 #define	XRES		256
 #define	YRES		239
-#define	FULLSCREEN	true
+#define	FULLSCREEN	false
 
 #define	TILE_SIZE	30
 
