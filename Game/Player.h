@@ -83,6 +83,7 @@ class Player
 		int getAmmo() const;
 		int getHealth() const;
 		int getScore() const;
+		void setScore(int newScore);
 		void setAscending(bool a);
 		bool isAscending() const;
 

@@ -68,6 +68,7 @@ bool Player::isStandingStill() const { return standingStill; }
 int Player::getAmmo() const { return ammo; }
 int Player::getHealth() const { return health; }
 int Player::getScore() const { return score; }
+void Player::setScore(int newScore) { score = newScore; }
 bool Player::isAscending() const { return ascending; }
 void Player::setAscending(bool a) { ascending = a; }
 
