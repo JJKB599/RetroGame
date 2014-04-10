@@ -68,7 +68,7 @@ class GameWindow : public Gosu::Window
             shot(shotAnim),
 			spotlight(graphics())
         { 
-          setCaption(L"Fire Mazing");
+          setCaption(L"Flamazing");
 
 		  paused = false;
 		  onStartScreen = false;
@@ -122,7 +122,7 @@ class GameWindow : public Gosu::Window
               loadLevel(1, true);
             }
           }
-          else if (!onStartScreen) {
+          else if (!onStartScreen && !paused) {
             player.songUpdate();
             std::list<Enemy>::iterator cur;
 
@@ -277,7 +277,7 @@ class GameWindow : public Gosu::Window
 		  {			
 			  if (btn == Gosu::kbEscape)
 				close();
-			  else if (btn == Gosu::kbReturn || btn == Gosu::kbEnter)
+			  else if ((btn == Gosu::kbReturn || btn == Gosu::kbEnter) && !transitioning)
 			  {
 				  if (paused)
 					paused = false;
@@ -356,6 +356,8 @@ class GameWindow : public Gosu::Window
     switch (level) {
       // transition
       case -1: {
+		player.setScore(player.getScore() + 50);
+
         filename = Gosu::resourcePrefix() + L"media/ui/transitionScreen.bmp";
         
         despawnItems();
