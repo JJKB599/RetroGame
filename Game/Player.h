@@ -71,6 +71,8 @@ class Player
     public:
 		Player(Animation& animation);
 
+		void resetPlayer();
+
 		int x() const;
 		int y() const;
 
@@ -81,25 +83,26 @@ class Player
 		int getAmmo() const;
 		int getHealth() const;
 		int getScore() const;
-    void setAscending(bool a);
+		void setAscending(bool a);
 		bool isAscending() const;
 
-    void stopSong();
-    void startSong1();
-    void startSong2();
+		void stopSong();
+		void startSong1();
+		void startSong2();
 
 		int shotDirection() const;
 
 		int getCurrentWalkCycleDirection() const;
 
-    void warp(int x, int y);
+		void warp(int x, int y);
 		void move();
-    void moveLeft();
-    void moveRight();
+		void moveLeft();
+		void moveRight();
 		void moveUp();
-    void moveDown();
+		void moveDown();
 		void turnLeft();
 		void turnRight();
+		void setStandingStill();
 
 		void moveGunUp();
 		void moveGunDown();

@@ -27,26 +27,34 @@
 Player::Player(Animation& animation)
 :	animation(animation)
 {
+	startAmmo = 20;
+	startHealth = 10;
+
+	song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
+	song2Filename = Gosu::resourcePrefix() + L"media/music/fangSpedUp.ogg";
+  
+	song = new Gosu::Song(song1Filename);
+
+	resetPlayer();
+}
+
+
+void Player::resetPlayer()
+{
 	posX = posY = 0;
-	currentWalkCycle = LEFT_GUN_FORWARD_CYCLE;
-	currentDirection = LEFT;
-	currentWalkCycleDirection = LEFT;
+	currentWalkCycle = RIGHT_GUN_FORWARD_CYCLE;
+	currentDirection = RIGHT;
+	currentWalkCycleDirection = RIGHT;
 	gunPosition = GUN_FORWARD;
 	standingStill = true;
 	lastTurnTime = Gosu::milliseconds() / 100;
 	onFire = false;
 	dead = false;
 	recovering = false;
-	ammo = startAmmo = 20;
-	health = startHealth = 10;
+	ammo = startAmmo;
+	health = startHealth;
 	score = 0;
 	ascending = true;
-
-	song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
-	song2Filename = Gosu::resourcePrefix() + L"media/music/fangSpedUp.ogg";
-  
-	song = new Gosu::Song(song1Filename);
-	song->play(true);
 }
 
 
@@ -197,6 +205,11 @@ void Player::turnRight()
 	}
 }
 
+void Player::setStandingStill()
+{
+	standingStill = true;
+}
+
 
 void Player::moveGunUp()
 {
@@ -326,7 +339,7 @@ void Player::draw()
 {
 	if (recovering)
 	{
-		if (Gosu::milliseconds() / 100 - recoveringStartTime > 40)
+		if (Gosu::milliseconds() / 100 - recoveringStartTime > 30)
 			recovering = false;
 		if (Gosu::milliseconds() / 100 % 2 == 0) // don't draw every fourth frame if recovering; to give flashing effect
 			return;
@@ -352,7 +365,10 @@ void Player::draw()
 			recoveringStartTime = Gosu::milliseconds() / 100;
 		}
 		if (onFireFrameCount == 7 && dead)
+		{
 			Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/death.wav").play();
+			song->stop();
+		}
 	}
 	else if (standingStill)
 	{
