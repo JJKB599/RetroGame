@@ -64,9 +64,8 @@ class Player
 
 	int onFireFrameCount;
 
-	Gosu::Song* song1;
+	Gosu::Song* song;
 	std::wstring song1Filename;
-	Gosu::Song* song2;
 	std::wstring song2Filename;
 
     public:
@@ -84,6 +83,10 @@ class Player
 		int getScore() const;
     void setAscending(bool a);
 		bool isAscending() const;
+
+    void stopSong();
+    void startSong1();
+    void startSong2();
 
 		int shotDirection() const;
 

@@ -43,12 +43,10 @@ Player::Player(Animation& animation)
 	ascending = true;
 
 	song1Filename = Gosu::resourcePrefix() + L"media/music/fang.ogg";
-	song1 = new Gosu::Song(song1Filename);
-
 	song2Filename = Gosu::resourcePrefix() + L"media/music/fangSpedUp.ogg";
-	song2 = new Gosu::Song(song2Filename);
-
-	song1->play(true);
+  
+	song = new Gosu::Song(song1Filename);
+	song->play(true);
 }
 
 
@@ -64,6 +62,21 @@ int Player::getHealth() const { return health; }
 int Player::getScore() const { return score; }
 bool Player::isAscending() const { return ascending; }
 void Player::setAscending(bool a) { ascending = a; }
+
+void Player::stopSong() {
+  song->stop();
+}
+
+void Player::startSong1() {
+	song = new Gosu::Song(song1Filename);
+  song->play(true);
+}
+
+
+void Player::startSong2() {
+	song = new Gosu::Song(song2Filename);
+  song->play(true);
+}
 
 
 int Player::shotDirection() const
@@ -289,14 +302,14 @@ void Player::checkForItemCollisions(std::list<Item>& items)
 			}
 			else // if (cur->getType() == KITTENS)
 			{
-				song1->stop();
+				song->stop();
 				score += 20;
 				if (score > 9999)
 					score = 9999;
 				Gosu::SampleInstance sampleInstance = Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/kittenPickup.wav").play();
 				while (sampleInstance.playing()) ;
 				ascending = false;
-				song2->play(true);
+        startSong2();
 			}
 
 			cur = items.erase(cur);
@@ -405,5 +418,5 @@ void Player::changeWalkCycle()
 
 void Player::songUpdate()
 {
-	song1->update();
+	song->update();
 }
