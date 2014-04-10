@@ -10,7 +10,9 @@
 #include <list> 
 #include <sstream> // For int <-> string conversion 
 #include <vector> 
-  
+
+#include <ctime>
+
 #include "Animation.h"
 #include "Direction.h"
 #include "Enemy.h"
@@ -53,6 +55,8 @@ class GameWindow : public Gosu::Window
 	Stair down;
 	int level;
 	int round;
+  bool transitioning;
+	time_t startTime;
 
 	bool paused;
 
@@ -103,110 +107,137 @@ class GameWindow : public Gosu::Window
 		  loadLevel(level, true);
         } 
   
-        void update() 
-        {
-		  if (!paused)
-		  {
-			  player.songUpdate();
-			  std::list<Enemy>::iterator cur;
+        void update() {
+        
+          if (transitioning) {
+            if (difftime(time(NULL), startTime) >= 5) {
+              transitioning = false;
+              player.setAscending(true);
+              round += 1;
+              level = 1;
+              loadLevel(1, true);
+            }
+          }
+          else {
+            player.songUpdate();
+            std::list<Enemy>::iterator cur;
 
-			  // Check if the player is on a set of stairs
-			  if (playerOnStairs(player, up) && player.isAscending()) {
-				if (level < 3)
-				  level += 1;
-				else
-				  level = 3;
-				loadLevel(level, true);
-			  }
+            // Check if the player is on a set of stairs
+            if (playerOnStairs(player, up) && player.isAscending()) {
+              if (level < 3)
+                level += 1;
+              loadLevel(level, true);
+            }
 
-			  if (playerOnStairs(player, down) && (player.isAscending() == false)) {
-				if (level > 1)
-				  level -= 1;
-				else {
-          level = 1;
-          round += 1;
-          player.setAscending(true);
+            if (playerOnStairs(player, down) && (player.isAscending() == false)) {
+              if (level > 1)
+                level -= 1;
+              else {
+                time(&startTime);
+                transitioning = true;
+                level = -1;
+              }
+              
+              loadLevel(level, false);
+            }
+
+
+            // Check for collisions
+            player.checkForEnemyCollisions(enemies);
+            player.checkForItemCollisions(items);
+            
+            if (!shot.active() && !player.isOnFire())
+            {
+              // Move the player
+              if (input().down(Gosu::kbUp) || input().down(Gosu::gpUp))
+              {
+                if (canMoveDirection(player.x(), player.y(), environment, UP))
+                player.moveUp();
+              }
+              else if (input().down(Gosu::kbDown) || input().down(Gosu::gpDown))
+              {
+                if (canMoveDirection(player.x(), player.y(), environment, DOWN))
+                player.moveDown();
+              }
+              else if (input().down(Gosu::kbLeft) || input().down(Gosu::gpLeft))
+              {
+                if (canMoveDirection(player.x(), player.y(), environment, LEFT) && player.getCurrentWalkCycleDirection() == LEFT)
+                player.moveLeft();
+                else
+                player.turnLeft();
+              }
+              else if (input().down(Gosu::kbRight) || input().down(Gosu::gpRight))
+              {
+                if (canMoveDirection(player.x(), player.y(), environment, RIGHT) && player.getCurrentWalkCycleDirection() == RIGHT)
+                player.moveRight();
+                else
+                player.turnRight();
+              }
+            }
+
+            // Move the player
+            player.move();
+            
+            // Move the enemy
+            cur = enemies.begin();
+            while (cur != enemies.end())
+            {
+              cur->move(environment);
+              ++cur;
+            }
+          }
         }
-				loadLevel(level, false);
-      }
-
-				  // Check for collisions
-				  player.checkForEnemyCollisions(enemies);
-				  player.checkForItemCollisions(items);
-				  
-				  if (!shot.active() && !player.isOnFire())
-				  {
-					  // Move the player
-					  if (input().down(Gosu::kbUp) || input().down(Gosu::gpUp))
-					  {
-						  if (canMoveDirection(player.x(), player.y(), environment, UP))
-							player.moveUp();
-					  }
-					  else if (input().down(Gosu::kbDown) || input().down(Gosu::gpDown))
-					  {
-						  if (canMoveDirection(player.x(), player.y(), environment, DOWN))
-							player.moveDown();
-					  }
-					  else if (input().down(Gosu::kbLeft) || input().down(Gosu::gpLeft))
-					  {
-						  if (canMoveDirection(player.x(), player.y(), environment, LEFT) && player.getCurrentWalkCycleDirection() == LEFT)
-							player.moveLeft();
-						  else
-							player.turnLeft();
-					  }
-					  else if (input().down(Gosu::kbRight) || input().down(Gosu::gpRight))
-					  {
-						  if (canMoveDirection(player.x(), player.y(), environment, RIGHT) && player.getCurrentWalkCycleDirection() == RIGHT)
-							player.moveRight();
-						  else
-							player.turnRight();
-					  }
-				  }
-
-				  // Move the player
-				  player.move();
-				  
-				  // Move the enemy
-				  cur = enemies.begin();
-				  while (cur != enemies.end())
-				  {
-					  cur->move(environment);
-					  ++cur;
-				  }
-		  }
-        } 
   
-        void draw() 
-        { 
-			player.draw();
-			shot.draw();
-			for (std::list<Enemy>::const_iterator i = enemies.begin(); i != enemies.end(); ++i)
-			{
-				i->draw();
-			}
-			for (std::list<Item>::const_iterator i = items.begin(); i != items.end(); ++i)
-			{
-				i->draw();
-			}
-			spotlight.draw(player, 50);
-			backgroundImage->draw(0, 0, zBackground);
+        void draw() {
+          if (transitioning) {
+            backgroundImage->draw(0, 0, zBackground);
+            Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
+            ammoBarImage.draw(240, 92, zUI);
 
-			Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
-			ammoBarImage.draw(240, 92, zUI);
+            Gosu::Image& healthBarImage = *healthBarAnim.at(10 - player.getHealth());
+            healthBarImage.draw(240, 3, zUI);
 
-			Gosu::Image& healthBarImage = *healthBarAnim.at(10 - player.getHealth());
-			healthBarImage.draw(240, 3, zUI);
+            scoreLabelImage->draw(5, 215, zUI);
+            Gosu::Image& scoreDigit3Image = *numbersAnim.at(player.getScore() / 1000 % 10);
+            scoreDigit3Image.draw(68, 215, zUI);
+            Gosu::Image& scoreDigit2Image = *numbersAnim.at(player.getScore() / 100 % 10);
+            scoreDigit2Image.draw(80, 215, zUI);
+            Gosu::Image& scoreDigit1Image = *numbersAnim.at(player.getScore() / 10 % 10);
+            scoreDigit1Image.draw(92, 215, zUI);
+            Gosu::Image& scoreDigit0Image = *numbersAnim.at(player.getScore() % 10);
+            scoreDigit0Image.draw(104, 215, zUI);
+          }
+          else {
+            player.draw();
+            shot.draw();
+            for (std::list<Enemy>::const_iterator i = enemies.begin(); i != enemies.end(); ++i)
+            {
+              i->draw();
+            }
+            for (std::list<Item>::const_iterator i = items.begin(); i != items.end(); ++i)
+            {
+              i->draw();
+            }
+            spotlight.draw(player, 50);
+            backgroundImage->draw(0, 0, zBackground);
 
-			scoreLabelImage->draw(5, 215, zUI);
-			Gosu::Image& scoreDigit3Image = *numbersAnim.at(player.getScore() / 1000 % 10);
-			scoreDigit3Image.draw(68, 215, zUI);
-			Gosu::Image& scoreDigit2Image = *numbersAnim.at(player.getScore() / 100 % 10);
-			scoreDigit2Image.draw(80, 215, zUI);
-			Gosu::Image& scoreDigit1Image = *numbersAnim.at(player.getScore() / 10 % 10);
-			scoreDigit1Image.draw(92, 215, zUI);
-			Gosu::Image& scoreDigit0Image = *numbersAnim.at(player.getScore() % 10);
-			scoreDigit0Image.draw(104, 215, zUI);
-		}
+            Gosu::Image& ammoBarImage = *ammoBarAnim.at(20 - player.getAmmo());
+            ammoBarImage.draw(240, 92, zUI);
+
+            Gosu::Image& healthBarImage = *healthBarAnim.at(10 - player.getHealth());
+            healthBarImage.draw(240, 3, zUI);
+
+            scoreLabelImage->draw(5, 215, zUI);
+            Gosu::Image& scoreDigit3Image = *numbersAnim.at(player.getScore() / 1000 % 10);
+            scoreDigit3Image.draw(68, 215, zUI);
+            Gosu::Image& scoreDigit2Image = *numbersAnim.at(player.getScore() / 100 % 10);
+            scoreDigit2Image.draw(80, 215, zUI);
+            Gosu::Image& scoreDigit1Image = *numbersAnim.at(player.getScore() / 10 % 10);
+            scoreDigit1Image.draw(92, 215, zUI);
+            Gosu::Image& scoreDigit0Image = *numbersAnim.at(player.getScore() % 10);
+            scoreDigit0Image.draw(104, 215, zUI);
+          }
+        }
   
         void buttonDown(Gosu::Button btn) 
         { 
@@ -288,6 +319,16 @@ class GameWindow : public Gosu::Window
     wall *walls = NULL;
     
     switch (level) {
+      // transition
+      case -1: {
+        filename = L"/Users/jeff/Desktop/gosu test/gosu test/media/ui/transitionScreen.bmp";
+        
+        despawnItems();
+        despawnEnemies();
+        
+        break;
+      }
+    
       case 1: {
         // Get map graphic
         filename = Gosu::resourcePrefix() + L"media/maps/map1.bmp";
