@@ -251,6 +251,9 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
 				if (health <= 0)
 					dead = true;
 				onFireFrameCount = 0;
+				score--;
+				if (score < 0)
+					score = 0;
 				Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/catchingFire.wav").play();
 			}
 			break;
