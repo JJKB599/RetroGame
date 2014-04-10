@@ -51,17 +51,24 @@ class GameWindow : public Gosu::Window
 	Spotlight spotlight;
 	Stair up;
 	Stair down;
-  int level = 1;
-  int round = 1;
+	int level;
+	int round;
+
+	bool paused;
 
     public: 
         GameWindow() 
-        :   Window(XRES, YRES, FULLSCREEN), 
+        :   Window(XRES, YRES, true), 
             player(playerAnim),
             shot(shotAnim),
 			spotlight(graphics())
         { 
           setCaption(L"Fire Mazing");
+
+		  paused = false;
+
+		  level = 1;
+		  round = 1;
 
 		  std::wstring playerGraphic = Gosu::resourcePrefix() + L"media/fireman/fireman.bmp";
 		  Gosu::imagesFromTiledBitmap(graphics(), playerGraphic, 30, 30, false, playerAnim);
@@ -93,73 +100,76 @@ class GameWindow : public Gosu::Window
 		  scoreLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/score.bmp", true));
 		  timeLabelImage.reset(new Gosu::Image(graphics(), Gosu::resourcePrefix() + L"media/ui/time.bmp", true));
 
-		  loadLevel(level);
+		  loadLevel(level, true);
         } 
   
         void update() 
         {
-		  player.songUpdate();
-		  std::list<Enemy>::iterator cur;
-
-      // Check if the player is on a set of stairs
-      if (playerOnStairs(player, up) && player.isAscending()) {
-        if (level < 3)
-          level += 1;
-        else
-          level = 3;
-        loadLevel(level, true);
-      }
-
-      if (playerOnStairs(player, down) && (player.isAscending() == false)) {
-        if (level > 1)
-          level -= 1;
-        else
-          close();
-        loadLevel(level, false);
-      }
-
-		  // Check for collisions
-		  player.checkForEnemyCollisions(enemies);
-		  player.checkForItemCollisions(items);
-		  
-		  if (!shot.active() && !player.isOnFire())
+		  if (!paused)
 		  {
-			  // Move the player
-			  if (input().down(Gosu::kbUp) || input().down(Gosu::gpUp))
-			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, UP))
-					player.moveUp();
-			  }
-			  else if (input().down(Gosu::kbDown) || input().down(Gosu::gpDown))
-			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, DOWN))
-					player.moveDown();
-			  }
-			  else if (input().down(Gosu::kbLeft) || input().down(Gosu::gpLeft))
-			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, LEFT) && player.getCurrentWalkCycleDirection() == LEFT)
-					player.moveLeft();
-				  else
-					player.turnLeft();
-			  }
-			  else if (input().down(Gosu::kbRight) || input().down(Gosu::gpRight))
-			  {
-				  if (canMoveDirection(player.x(), player.y(), environment, RIGHT) && player.getCurrentWalkCycleDirection() == RIGHT)
-					player.moveRight();
-				  else
-					player.turnRight();
-			  }
-		  }
+			  player.songUpdate();
+			  std::list<Enemy>::iterator cur;
 
-		  // Move the player
-		  player.move();
-		  
-		  // Move the enemy
-		  cur = enemies.begin();
-		  while (cur != enemies.end())
-		  {
-			  cur->move(environment);
-			  ++cur;
+			  // Check if the player is on a set of stairs
+			  if (playerOnStairs(player, up) && player.isAscending()) {
+				if (level < 3)
+				  level += 1;
+				else
+				  level = 3;
+				loadLevel(level, true);
+			  }
+
+			  if (playerOnStairs(player, down) && (player.isAscending() == false)) {
+				if (level > 1)
+				  level -= 1;
+				else
+				  close();
+				loadLevel(level, false);
+			  }
+
+				  // Check for collisions
+				  player.checkForEnemyCollisions(enemies);
+				  player.checkForItemCollisions(items);
+				  
+				  if (!shot.active() && !player.isOnFire())
+				  {
+					  // Move the player
+					  if (input().down(Gosu::kbUp) || input().down(Gosu::gpUp))
+					  {
+						  if (canMoveDirection(player.x(), player.y(), environment, UP))
+							player.moveUp();
+					  }
+					  else if (input().down(Gosu::kbDown) || input().down(Gosu::gpDown))
+					  {
+						  if (canMoveDirection(player.x(), player.y(), environment, DOWN))
+							player.moveDown();
+					  }
+					  else if (input().down(Gosu::kbLeft) || input().down(Gosu::gpLeft))
+					  {
+						  if (canMoveDirection(player.x(), player.y(), environment, LEFT) && player.getCurrentWalkCycleDirection() == LEFT)
+							player.moveLeft();
+						  else
+							player.turnLeft();
+					  }
+					  else if (input().down(Gosu::kbRight) || input().down(Gosu::gpRight))
+					  {
+						  if (canMoveDirection(player.x(), player.y(), environment, RIGHT) && player.getCurrentWalkCycleDirection() == RIGHT)
+							player.moveRight();
+						  else
+							player.turnRight();
+					  }
+				  }
+
+				  // Move the player
+				  player.move();
+				  
+				  // Move the enemy
+				  cur = enemies.begin();
+				  while (cur != enemies.end())
+				  {
+					  cur->move(environment);
+					  ++cur;
+				  }
 		  }
         } 
   
@@ -199,8 +209,15 @@ class GameWindow : public Gosu::Window
         { 
 		  if (btn == Gosu::kbEscape)
 		    close();
+		  else if (btn == Gosu::kbReturn)
+		  {
+			  if (paused)
+				paused = false;
+			  else
+			    paused = true;
+		  }
 
-		  if (!shot.active() && !player.isOnFire())
+		  if (!paused && !shot.active() && !player.isOnFire())
 		  {
 			  if (btn == Gosu::kbSpace && player.isStandingStill())
 			  {
@@ -262,7 +279,7 @@ class GameWindow : public Gosu::Window
   }
 
   
-  void loadLevel(int level) {
+  void loadLevel(int level, bool ascending) {
     std::wstring filename;
     int numWalls = 0;
     wall *walls = NULL;
@@ -336,7 +353,7 @@ class GameWindow : public Gosu::Window
               wall(0, 0, 240, 0),
               wall(0, 0, 0, 210),
               wall(0, 210, 240, 210),
-              wall(210, 210, 240, 0),
+              wall(240, 210, 240, 0),
               wall(0, 60, 30, 60),
               wall(30, 60, 30, 30),
               wall(30, 30, 90, 30),
@@ -451,6 +468,8 @@ class GameWindow : public Gosu::Window
       default:
         break;
     }
+
+	Gosu::Sample(Gosu::resourcePrefix() + L"media/sounds/levelChange.wav").play();
     
     backgroundImage.reset(new Gosu::Image(graphics(), filename, true));
     environment = Environment(numWalls, walls);

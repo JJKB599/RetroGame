@@ -216,22 +216,22 @@ void Player::shoot(Shot& shot, std::list<Enemy>& enemies, Environment& env)
 		if (shotDirection() == UP && canMoveDirection(posX, posY, env, UP))
 		{
 			shot.activate(posX, posY - 30, UP, getCurrentWalkCycleDirection(), enemies, score);
-			ammo--;
+			ammo -= 4;
 		}
 		else if (shotDirection() == DOWN && canMoveDirection(posX, posY, env, DOWN))
 		{
 			shot.activate(posX, posY + 30, DOWN, getCurrentWalkCycleDirection(), enemies, score);
-			ammo--;
+			ammo -= 4;
 		}
 		else if (shotDirection() == LEFT && canMoveDirection(posX, posY, env, LEFT))
 		{
 			shot.activate(posX - 30, posY, LEFT, getCurrentWalkCycleDirection(), enemies, score);
-			ammo--;
+			ammo -= 4;
 		}
 		else if (shotDirection() == RIGHT && canMoveDirection(posX, posY, env, RIGHT))
 		{
 			shot.activate(posX + 30, posY, RIGHT, getCurrentWalkCycleDirection(), enemies, score);
-			ammo--;
+			ammo -= 4;
 		}
 	}
 }
@@ -247,7 +247,7 @@ void Player::checkForEnemyCollisions(std::list<Enemy>& enemies)
             if (!onFire && !recovering)
 			{
 				onFire = true;
-				health--;
+				health -= 2;
 				if (health <= 0)
 					dead = true;
 				onFireFrameCount = 0;
