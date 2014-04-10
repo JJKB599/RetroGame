@@ -63,6 +63,7 @@ int Player::getAmmo() const { return ammo; }
 int Player::getHealth() const { return health; }
 int Player::getScore() const { return score; }
 bool Player::isAscending() const { return ascending; }
+void Player::setAscending(bool a) { ascending = a; }
 
 
 int Player::shotDirection() const

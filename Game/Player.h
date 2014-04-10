@@ -82,18 +82,19 @@ class Player
 		int getAmmo() const;
 		int getHealth() const;
 		int getScore() const;
+    void setAscending(bool a);
 		bool isAscending() const;
 
 		int shotDirection() const;
 
 		int getCurrentWalkCycleDirection() const;
 
-        void warp(int x, int y);
+    void warp(int x, int y);
 		void move();
-        void moveLeft();
-        void moveRight();
+    void moveLeft();
+    void moveRight();
 		void moveUp();
-        void moveDown();
+    void moveDown();
 		void turnLeft();
 		void turnRight();
 
